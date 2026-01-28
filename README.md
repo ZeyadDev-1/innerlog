@@ -16,7 +16,7 @@ mood tracking, self-reflection, and emotional awareness.
 - Django + Django REST Framework
 - SQLite
 - Chart.js
-- React (planned)
+- React
 
 ## Ethics
 InnerLog is designed to support self-awareness, not replace
