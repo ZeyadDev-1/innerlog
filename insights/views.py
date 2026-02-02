@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from journal.models import MoodEntry
 from django.db.models import Avg
 from django.db.models.functions import TruncWeek
+from django.db.models import Count
 
 class MoodTrendView(APIView):
     def get(self, request):
@@ -27,6 +28,18 @@ class WeeklyMoodAverageView(APIView):
             .values('week')
             .annotate(avg_mood=Avg('mood_score'))
             .order_by('week')
+        )
+
+        return Response(list(data))
+    
+class MoodDistributionView(APIView):
+    def get(self, request):
+        data = (
+            MoodEntry.objects
+            .filter(user=request.user)
+            .values('mood_score')
+            .annotate(count=Count('id'))
+            .order_by('mood_score')
         )
 
         return Response(list(data))
