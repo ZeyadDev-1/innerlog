@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import api from "./api/client";
+import Login from "./pages/Login";
+import MoodForm from "./components/MoodForm";
+import MoodTrendChart from "./charts/MoodTrendChart";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(
+    !!localStorage.getItem("access_token")
+  );
+  const [trend, setTrend] = useState([]);
+
+  async function loadTrend() {
+    const res = await api.get("insights/trend/");
+    setTrend(res.data);
+  }
+
+  useEffect(() => {
+    if (loggedIn) {
+      loadTrend();
+    }
+  }, [loggedIn]);
+
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <MoodForm onAdd={loadTrend} />
+      <MoodTrendChart data={trend} />
+    </div>
+  );
 }
-
-export default App
