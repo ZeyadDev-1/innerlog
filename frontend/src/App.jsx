@@ -11,9 +11,14 @@ export default function App() {
   const [trend, setTrend] = useState([]);
 
   async function loadTrend() {
+  try {
     const res = await api.get("insights/trend/");
     setTrend(res.data);
+  } catch (err) {
+    console.error("Failed to load trend");
   }
+}
+
 
   useEffect(() => {
     if (loggedIn) {
