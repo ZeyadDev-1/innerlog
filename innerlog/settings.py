@@ -143,4 +143,6 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 # CORS (DEV ONLY)
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
