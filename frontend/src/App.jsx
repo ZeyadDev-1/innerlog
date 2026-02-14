@@ -10,37 +10,45 @@ export default function App() {
   );
   const [trend, setTrend] = useState([]);
 
+  // Load mood trend data
   async function loadTrend() {
-  try {
-    const res = await api.get("insights/trend/");
-    setTrend(res.data);
-  } catch (err) {
-    console.error("Failed to load trend");
+    try {
+      const res = await api.get("insights/trend/");
+      setTrend(res.data);
+    } catch (err) {
+      console.error("Failed to load trend:", err);
+    }
   }
-}
 
-
+  // Load data when user logs in
   useEffect(() => {
     if (loggedIn) {
       loadTrend();
     }
   }, [loggedIn]);
 
+  // Logout handler
   const handleLogout = () => {
     localStorage.clear();
     setLoggedIn(false);
   };
 
+  // If not logged in → show login screen
   if (!loggedIn) {
     return <Login onLogin={() => setLoggedIn(true)} />;
   }
 
   return (
-    <div>
-      <button onClick={handleLogout}>Logout</button>
+    <div className="app-container">
+      <header className="header">
+        <h1>InnerLog</h1>
+        <button onClick={handleLogout}>Logout</button>
+      </header>
 
-      <MoodForm onAdd={loadTrend} />
-      <MoodTrendChart data={trend} />
+      <div className="content">
+        <MoodForm onAdd={loadTrend} />
+        <MoodTrendChart data={trend} />
+      </div>
     </div>
   );
 }
