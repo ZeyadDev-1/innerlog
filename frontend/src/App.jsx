@@ -14,40 +14,34 @@ export default function App() {
   const [weekly, setWeekly] = useState([]);
   const [distribution, setDistribution] = useState([]);
 
-  async function loadTrend() {
-    try {
-      const res = await api.get("insights/trend/");
-      setTrend(res.data);
-    } catch (err) {
-      console.error("Failed to load trend:", err);
-    }
-  }
+  const [loading, setLoading] = useState(false);
 
-  async function loadWeekly() {
-    try {
-      const res = await api.get("insights/weekly-average/");
-      setWeekly(res.data);
-    } catch (err) {
-      console.error("Failed to load weekly data:", err);
-    }
-  }
+  async function loadAllData() {
+  try {
+    setLoading(true);
 
-  async function loadDistribution() {
-    try {
-      const res = await api.get("insights/distribution/");
-      setDistribution(res.data);
-    } catch (err) {
-      console.error("Failed to load distribution:", err);
-    }
+    const [trendRes, weeklyRes, distributionRes] = await Promise.all([
+      api.get("insights/trend/"),
+      api.get("insights/weekly-average/"),
+      api.get("insights/distribution/"),
+    ]);
+
+    setTrend(trendRes.data);
+    setWeekly(weeklyRes.data);
+    setDistribution(distributionRes.data);
+  } catch (err) {
+    console.error("Failed to load dashboard data:", err);
+  } finally {
+    setLoading(false);
   }
+}
+
 
   useEffect(() => {
-    if (loggedIn) {
-      loadTrend();
-      loadWeekly();
-      loadDistribution();
-    }
-  }, [loggedIn]);
+  if (loggedIn) {
+    loadAllData();
+  }
+}, [loggedIn]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -67,20 +61,21 @@ export default function App() {
 
     <div className="dashboard">
       <div className="left-panel">
-        <MoodForm
-          onAdd={() => {
-            loadTrend();
-            loadWeekly();
-            loadDistribution();
-          }}
-        />
+        <MoodForm onAdd={loadAllData} />
       </div>
 
       <div className="right-panel">
-        <MoodTrendChart data={trend} />
-        <WeeklyAverageChart data={weekly} />
-        <MoodDistributionChart data={distribution} />
-      </div>
+  {loading ? (
+    <div className="loading">Loading dashboard...</div>
+  ) : (
+    <>
+      <MoodTrendChart data={trend} />
+      <WeeklyAverageChart data={weekly} />
+      <MoodDistributionChart data={distribution} />
+    </>
+  )}
+</div>
+
     </div>
   </div>
 );

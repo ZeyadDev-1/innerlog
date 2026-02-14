@@ -6,22 +6,27 @@ export default function MoodForm({ onAdd }) {
   const [text, setText] = useState("");
   const [emotions, setEmotions] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const submit = async () => {
-    setError("");
+  setError("");
+  setSaving(true);
 
-    try {
-      await api.post("journal/moods/", {
-        mood_score: mood,
-        journal_text: text,
-        emotions,
-      });
+  try {
+    await api.post("journal/moods/", {
+      mood_score: mood,
+      journal_text: text,
+      emotions,
+    });
 
-      onAdd();
-    } catch (err) {
-      setError("Failed to save mood.");
-    }
-  };
+    onAdd();
+  } catch (err) {
+    setError("Failed to save mood.");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <>
@@ -49,7 +54,10 @@ export default function MoodForm({ onAdd }) {
         onChange={(e) => setText(e.target.value)}
       />
 
-      <button onClick={submit}>Save</button>
+      <button onClick={submit} disabled={saving}>
+  {saving ? "Saving..." : "Save"}
+</button>
+
     </>
   );
 }
