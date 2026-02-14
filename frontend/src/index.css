@@ -52,3 +52,29 @@ textarea {
   display: grid;
   gap: 30px;
 }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+}
+
+.left-panel {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  height: fit-content;
+}
+
+.right-panel {
+  display: grid;
+  gap: 30px;
+}
+
+/* Responsive layout */
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+

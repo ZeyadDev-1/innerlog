@@ -24,7 +24,7 @@ export default function MoodForm({ onAdd }) {
   };
 
   return (
-    <div>
+    <>
       <h3>Add Mood</h3>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -39,15 +39,17 @@ export default function MoodForm({ onAdd }) {
 
       <input
         placeholder="Emotions"
+        value={emotions}
         onChange={(e) => setEmotions(e.target.value)}
       />
 
       <textarea
         placeholder="Journal"
+        value={text}
         onChange={(e) => setText(e.target.value)}
       />
 
       <button onClick={submit}>Save</button>
-    </div>
+    </>
   );
 }
