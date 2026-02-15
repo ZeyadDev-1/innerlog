@@ -19,6 +19,11 @@ export default function MoodForm({ onAdd }) {
       emotions,
     });
 
+    // 🔥 CLEAR FORM AFTER SUCCESS
+    setMood(3);
+    setText("");
+    setEmotions("");
+
     onAdd();
   } catch (err) {
     setError("Failed to save mood.");
@@ -26,6 +31,7 @@ export default function MoodForm({ onAdd }) {
     setSaving(false);
   }
 };
+
 
 
   return (
