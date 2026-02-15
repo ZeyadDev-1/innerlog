@@ -13,22 +13,30 @@ export default function App() {
   const [trend, setTrend] = useState([]);
   const [weekly, setWeekly] = useState([]);
   const [distribution, setDistribution] = useState([]);
-
   const [loading, setLoading] = useState(false);
+  const [moods, setMoods] = useState([]);
+
 
   async function loadAllData() {
   try {
     setLoading(true);
 
-    const [trendRes, weeklyRes, distributionRes] = await Promise.all([
+    const [
+      trendRes,
+      weeklyRes,
+      distributionRes,
+      moodsRes,
+    ] = await Promise.all([
       api.get("insights/trend/"),
       api.get("insights/weekly-average/"),
       api.get("insights/distribution/"),
+      api.get("journal/moods/"),
     ]);
 
     setTrend(trendRes.data);
     setWeekly(weeklyRes.data);
     setDistribution(distributionRes.data);
+    setMoods(moodsRes.data);
   } catch (err) {
     console.error("Failed to load dashboard data:", err);
   } finally {
@@ -80,3 +88,13 @@ export default function App() {
   </div>
 );
 }
+
+async function loadMoods() {
+  try {
+    const res = await api.get("journal/moods/");
+    setMoods(res.data);
+  } catch (err) {
+    console.error("Failed to load moods:", err);
+  }
+}
+
