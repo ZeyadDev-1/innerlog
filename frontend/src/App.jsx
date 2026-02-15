@@ -5,6 +5,8 @@ import MoodForm from "./components/MoodForm";
 import MoodTrendChart from "./charts/MoodTrendChart";
 import WeeklyAverageChart from "./charts/WeeklyAverageChart";
 import MoodDistributionChart from "./charts/MoodDistributionChart";
+import MoodList from "./components/MoodList";
+
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(
@@ -77,6 +79,7 @@ export default function App() {
     <div className="loading">Loading dashboard...</div>
   ) : (
     <>
+      <MoodList moods={moods} onDelete={loadAllData} />
       <MoodTrendChart data={trend} />
       <WeeklyAverageChart data={weekly} />
       <MoodDistributionChart data={distribution} />
