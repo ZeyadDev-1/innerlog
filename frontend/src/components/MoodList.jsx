@@ -1,10 +1,11 @@
 import api from "../api/client";
 
-export default function MoodList({ moods, onDelete }) {
+export default function MoodList({ moods, onDelete, onSuccess }) {
   const handleDelete = async (id) => {
     try {
       await api.delete(`journal/moods/${id}/`);
       onDelete();
+      onSuccess("Mood deleted successfully.");
     } catch (err) {
       console.error("Failed to delete mood:", err);
     }

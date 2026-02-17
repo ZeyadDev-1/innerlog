@@ -79,10 +79,16 @@ export default function App() {
       <h1>InnerLog</h1>
       <button onClick={handleLogout}>Logout</button>
     </header>
+    {successMessage && (
+  <div className="success-message">
+    {successMessage}
+  </div>
+)}
+
 
     <div className="dashboard">
       <div className="left-panel">
-        <MoodForm onAdd={loadAllData} />
+        <MoodForm onAdd={loadAllData} onSuccess={showSuccess} />
       </div>
 
       <div className="right-panel">
@@ -90,7 +96,12 @@ export default function App() {
     <div className="loading">Loading dashboard...</div>
   ) : (
     <>
-      <MoodList moods={moods} onDelete={loadAllData} />
+      <MoodList
+  moods={moods}
+  onDelete={loadAllData}
+  onSuccess={showSuccess}
+/>
+
       <MoodTrendChart data={trend} />
       <WeeklyAverageChart data={weekly} />
       <MoodDistributionChart data={distribution} />
