@@ -17,6 +17,8 @@ export default function App() {
   const [distribution, setDistribution] = useState([]);
   const [loading, setLoading] = useState(false);
   const [moods, setMoods] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+
 
 
   async function loadAllData() {
@@ -61,6 +63,15 @@ export default function App() {
   if (!loggedIn) {
     return <Login onLogin={() => setLoggedIn(true)} />;
   }
+
+  function showSuccess(message) {
+  setSuccessMessage(message);
+
+  setTimeout(() => {
+    setSuccessMessage("");
+  }, 2000);
+}
+
 
   return (
   <div className="app-container">
