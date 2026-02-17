@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../api/client";
 
-export default function MoodForm({ onAdd }) {
+export default function MoodForm({ onAdd, onSuccess }) {
   const [mood, setMood] = useState(3);
   const [text, setText] = useState("");
   const [emotions, setEmotions] = useState("");
@@ -25,6 +25,8 @@ export default function MoodForm({ onAdd }) {
     setEmotions("");
 
     onAdd();
+    onSuccess("Mood saved successfully!");
+
   } catch (err) {
     setError("Failed to save mood.");
   } finally {
