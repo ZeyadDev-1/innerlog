@@ -9,6 +9,8 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
     await api.delete(`journal/moods/${id}/`);
     onDelete();
     onSuccess("Mood deleted successfully.");
+  }catch (err) {
+    console.error("Failed to delete mood:", err);
   }
 };
 
