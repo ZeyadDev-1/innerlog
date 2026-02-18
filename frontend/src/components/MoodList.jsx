@@ -46,7 +46,7 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
                 justifyContent: "space-between",
                 marginBottom: "10px",
                 paddingBottom: "8px",
-                borderBottom: "2px solid #eeeee",
+                borderBottom: "1px solid #eee",
               }}
             >
               <div>
