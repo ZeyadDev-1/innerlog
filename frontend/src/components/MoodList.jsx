@@ -18,54 +18,36 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
   };
 
   return (
-    <div style={{ background: "white", padding: "20px", borderRadius: "8px" }}>
+    <div className="moodlist-card">
       <button
+        className="dropdown-button"
         onClick={() => setOpen((v) => !v)}
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
       >
-        <span>Recent Entries</span>
-        <span style={{ fontSize: "14px" }}>
-          {open ? "▲" : "▼"} ({moods.length})
-        </span>
+        <span>Recent Entries ({moods.length})</span>
+        <span className={`arrow ${open ? "open" : ""}`}>▼</span>
       </button>
 
-      {open && (
-        <div style={{ marginTop: "15px" }}>
-          {moods.length === 0 && <p>No entries yet.</p>}
+      <div className={`dropdown-content ${open ? "open" : ""}`}>
+        {moods.length === 0 && <p>No entries yet.</p>}
 
-          {moods.map((mood) => (
-            <div
-              key={mood.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-                paddingBottom: "8px",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              <div>
-                <strong>Mood {mood.mood_score}</strong>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  {new Date(mood.created_at).toLocaleString()}
-                </div>
+        {moods.map((mood) => (
+          <div key={mood.id} className="mood-row">
+            <div>
+              <strong>Mood {mood.mood_score}</strong>
+              <div className="mood-date">
+                {new Date(mood.created_at).toLocaleString()}
               </div>
-
-              <button
-                style={{ backgroundColor: "#ef4444" }}
-                onClick={() => handleDelete(mood.id)}
-              >
-                Delete
-              </button>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button
+              className="delete-button"
+              onClick={() => handleDelete(mood.id)}
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
