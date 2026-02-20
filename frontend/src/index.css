@@ -132,7 +132,7 @@ textarea {
 }
 
 .dropdown-content.open {
-  max-height: 500px;
+  max-height: 2000px; /* enough for 5+ entries with animation */
   opacity: 1;
   margin-top: 15px;
 }

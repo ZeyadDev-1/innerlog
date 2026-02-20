@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import api from "../api/client";
 
 export default function MoodList({ moods, onDelete, onSuccess }) {
   const [open, setOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   const moodEmojis = {
     1: "😞",
@@ -10,6 +11,22 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
     3: "😐",
     4: "🙂",
     5: "😁",
+  };
+
+  // Sort newest first (important if backend returns oldest first)
+  const sortedMoods = useMemo(() => {
+    return [...moods].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+  }, [moods]);
+
+  const shownMoods = sortedMoods.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedMoods.length;
+
+  const toggleOpen = () => {
+    setOpen((v) => !v);
+    // reset visible count when opening to keep UX consistent
+    if (!open) setVisibleCount(5);
   };
 
   const handleDelete = async (id) => {
@@ -27,20 +44,15 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
 
   return (
     <div className="moodlist-card">
-      {/* Dropdown Header */}
-      <button
-        className="dropdown-button"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span>Recent Entries ({moods.length})</span>
+      <button className="dropdown-button" onClick={toggleOpen}>
+        <span>Recent Entries ({sortedMoods.length})</span>
         <span className={`arrow ${open ? "open" : ""}`}>▼</span>
       </button>
 
-      {/* Dropdown Content */}
       <div className={`dropdown-content ${open ? "open" : ""}`}>
-        {moods.length === 0 && <p>No entries yet.</p>}
+        {sortedMoods.length === 0 && <p>No entries yet.</p>}
 
-        {moods.map((mood) => (
+        {shownMoods.map((mood) => (
           <div key={mood.id} className="mood-row">
             <div style={{ flex: 1 }}>
               <strong>
@@ -51,14 +63,12 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
                 {new Date(mood.created_at).toLocaleString()}
               </div>
 
-              {/* Emotions */}
               {mood.emotions && (
                 <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
                   <strong>Emotions:</strong> {mood.emotions}
                 </div>
               )}
 
-              {/* Journal Preview */}
               {mood.journal_text && (
                 <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
                   <strong>Journal:</strong>{" "}
@@ -69,14 +79,24 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
               )}
             </div>
 
-            <button
-              className="delete-button"
-              onClick={() => handleDelete(mood.id)}
-            >
+            <button className="delete-button" onClick={() => handleDelete(mood.id)}>
               Delete
             </button>
           </div>
         ))}
+
+        {open && hasMore && (
+          <button
+            className="show-more-button"
+            onClick={() => setVisibleCount((c) => c + 5)}
+          >
+            Show more (+5)
+          </button>
+        )}
+
+        {open && !hasMore && sortedMoods.length > 5 && (
+          <div className="all-shown-note">All entries shown.</div>
+        )}
       </div>
     </div>
   );
