@@ -154,3 +154,43 @@ textarea {
   background-color: #ef4444;
 }
 
+.mood-meta {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #444;
+}
+
+.expand-button {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+  height: fit-content;
+}
+
+.journal-full {
+  margin-top: 10px;
+  background: #f9fafb;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.journal-text {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.entry-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.delete-button.small {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+
