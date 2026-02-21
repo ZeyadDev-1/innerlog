@@ -4,6 +4,7 @@ import api from "../api/client";
 export default function MoodList({ moods, onDelete, onSuccess }) {
   const [open, setOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
+  const [expandedId, setExpandedId] = useState(null);
 
   const moodEmojis = {
     1: "😞",
@@ -25,8 +26,16 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
 
   const toggleOpen = () => {
     setOpen((v) => !v);
-    // reset visible count when opening to keep UX consistent
-    if (!open) setVisibleCount(5);
+
+    // reset visible count and expanded entry when opening
+    if (!open) {
+      setVisibleCount(5);
+      setExpandedId(null);
+    }
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedId((curr) => (curr === id ? null : id));
   };
 
   const handleDelete = async (id) => {
@@ -35,6 +44,7 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
 
     try {
       await api.delete(`journal/moods/${id}/`);
+      setExpandedId(null);
       onDelete();
       onSuccess("Mood deleted successfully.");
     } catch (err) {
@@ -52,38 +62,88 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
       <div className={`dropdown-content ${open ? "open" : ""}`}>
         {sortedMoods.length === 0 && <p>No entries yet.</p>}
 
-        {shownMoods.map((mood) => (
-          <div key={mood.id} className="mood-row">
-            <div style={{ flex: 1 }}>
-              <strong>
-                {moodEmojis[mood.mood_score]} Mood {mood.mood_score}
-              </strong>
+        {shownMoods.map((mood) => {
+          const isExpanded = expandedId === mood.id;
 
-              <div className="mood-date">
-                {new Date(mood.created_at).toLocaleString()}
+          return (
+            <div key={mood.id} className="mood-row">
+              <div style={{ flex: 1 }}>
+                <strong>
+                  {moodEmojis[mood.mood_score]} Mood {mood.mood_score}
+                </strong>
+
+                <div className="mood-date">
+                  {new Date(mood.created_at).toLocaleString()}
+                </div>
+
+                {mood.emotions && (
+                  <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
+                    <strong>Emotions:</strong> {mood.emotions}
+                  </div>
+                )}
+
+                {/* COLLAPSED: show preview */}
+                {!isExpanded && mood.journal_text && (
+                  <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
+                    <strong>Journal:</strong>{" "}
+                    {mood.journal_text.length > 80
+                      ? mood.journal_text.slice(0, 80) + "..."
+                      : mood.journal_text}
+                  </div>
+                )}
+
+                {/* EXPANDED: show full journal + delete inside */}
+                {isExpanded && (
+                  <div style={{ marginTop: "10px" }}>
+                    {mood.journal_text && (
+                      <div
+                        style={{
+                          background: "#f9fafb",
+                          border: "1px solid #eee",
+                          borderRadius: "8px",
+                          padding: "12px",
+                        }}
+                      >
+                        <strong>Full Journal</strong>
+                        <div
+                          style={{
+                            marginTop: "8px",
+                            fontSize: "13px",
+                            lineHeight: 1.5,
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {mood.journal_text}
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: "10px",
+                      }}
+                    >
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(mood.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {mood.emotions && (
-                <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
-                  <strong>Emotions:</strong> {mood.emotions}
-                </div>
-              )}
-
-              {mood.journal_text && (
-                <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
-                  <strong>Journal:</strong>{" "}
-                  {mood.journal_text.length > 80
-                    ? mood.journal_text.slice(0, 80) + "..."
-                    : mood.journal_text}
-                </div>
-              )}
+              {/* PRIMARY ACTION BUTTON */}
+              <button className="expand-button" onClick={() => toggleExpand(mood.id)}>
+                {isExpanded ? "Collapse" : "Expand"}
+              </button>
             </div>
-
-            <button className="delete-button" onClick={() => handleDelete(mood.id)}>
-              Delete
-            </button>
-          </div>
-        ))}
+          );
+        })}
 
         {open && hasMore && (
           <button
