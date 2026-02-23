@@ -1,20 +1,20 @@
 import { useMemo, useState } from "react";
 import api from "../api/client";
 
-export default function MoodList({ moods, onDelete, onSuccess }) {
+export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
   const [open, setOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const [expandedId, setExpandedId] = useState(null);
 
-  const moodEmojis = {
-    1: "😞",
-    2: "😕",
-    3: "😐",
-    4: "🙂",
-    5: "😁",
-  };
+  // Editing state
+  const [editingId, setEditingId] = useState(null);
+  const [editMoodScore, setEditMoodScore] = useState(3);
+  const [editEmotions, setEditEmotions] = useState("");
+  const [editJournal, setEditJournal] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
-  // Sort newest first (important if backend returns oldest first)
+  const moodEmojis = { 1: "😞", 2: "😕", 3: "😐", 4: "🙂", 5: "😁" };
+
   const sortedMoods = useMemo(() => {
     return [...moods].sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -26,16 +26,46 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
 
   const toggleOpen = () => {
     setOpen((v) => !v);
-
-    // reset visible count and expanded entry when opening
     if (!open) {
       setVisibleCount(5);
       setExpandedId(null);
+      setEditingId(null);
     }
   };
 
   const toggleExpand = (id) => {
     setExpandedId((curr) => (curr === id ? null : id));
+    setEditingId(null);
+  };
+
+  const startEdit = (mood) => {
+    setEditingId(mood.id);
+    setExpandedId(mood.id);
+    setEditMoodScore(Number(mood.mood_score));
+    setEditEmotions(mood.emotions || "");
+    setEditJournal(mood.journal_text || "");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const saveEdit = async (id) => {
+    setSavingEdit(true);
+    try {
+      await api.patch(`journal/moods/${id}/`, {
+        mood_score: Number(editMoodScore),
+        emotions: editEmotions,
+        journal_text: editJournal,
+      });
+      setEditingId(null);
+      onDelete(); // re-fetch (same function you use for refresh)
+      onSuccess("Entry updated successfully.");
+    } catch (err) {
+      console.error("Failed to update mood:", err);
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -45,6 +75,7 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
     try {
       await api.delete(`journal/moods/${id}/`);
       setExpandedId(null);
+      setEditingId(null);
       onDelete();
       onSuccess("Mood deleted successfully.");
     } catch (err) {
@@ -64,6 +95,7 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
 
         {shownMoods.map((mood) => {
           const isExpanded = expandedId === mood.id;
+          const isEditing = editingId === mood.id;
 
           return (
             <div key={mood.id} className="mood-row">
@@ -77,14 +109,14 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
                 </div>
 
                 {mood.emotions && (
-                  <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
+                  <div className="mood-meta">
                     <strong>Emotions:</strong> {mood.emotions}
                   </div>
                 )}
 
-                {/* COLLAPSED: show preview */}
-                {!isExpanded && mood.journal_text && (
-                  <div style={{ fontSize: "12px", marginTop: "4px", color: "#444" }}>
+                {/* COLLAPSED PREVIEW (respect privacyMode) */}
+                {!privacyMode && !isExpanded && mood.journal_text && (
+                  <div className="mood-meta">
                     <strong>Journal:</strong>{" "}
                     {mood.journal_text.length > 80
                       ? mood.journal_text.slice(0, 80) + "..."
@@ -92,52 +124,102 @@ export default function MoodList({ moods, onDelete, onSuccess }) {
                   </div>
                 )}
 
-                {/* EXPANDED: show full journal + delete inside */}
+                {/* EXPANDED */}
                 {isExpanded && (
                   <div style={{ marginTop: "10px" }}>
-                    {mood.journal_text && (
-                      <div
-                        style={{
-                          background: "#f9fafb",
-                          border: "1px solid #eee",
-                          borderRadius: "8px",
-                          padding: "12px",
-                        }}
-                      >
-                        <strong>Full Journal</strong>
-                        <div
-                          style={{
-                            marginTop: "8px",
-                            fontSize: "13px",
-                            lineHeight: 1.5,
-                            whiteSpace: "pre-wrap",
-                          }}
-                        >
-                          {mood.journal_text}
+                    {/* EDIT MODE */}
+                    {isEditing ? (
+                      <div className="journal-full">
+                        <strong>Edit Entry</strong>
+
+                        <div style={{ marginTop: 10 }}>
+                          <label className="small-label">Mood Score</label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="5"
+                            step="1"
+                            value={editMoodScore}
+                            onChange={(e) => setEditMoodScore(Number(e.target.value))}
+                            style={{ width: "100%" }}
+                          />
+                          <div style={{ fontSize: 12, color: "#666" }}>
+                            {moodEmojis[editMoodScore]} Mood {editMoodScore}
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 10 }}>
+                          <label className="small-label">Emotions</label>
+                          <input
+                            value={editEmotions}
+                            onChange={(e) => setEditEmotions(e.target.value)}
+                            placeholder="e.g., tired, anxious"
+                          />
+                        </div>
+
+                        <div style={{ marginTop: 10 }}>
+                          <label className="small-label">Journal</label>
+                          <textarea
+                            value={editJournal}
+                            onChange={(e) => setEditJournal(e.target.value)}
+                            placeholder="Write..."
+                            style={{ width: "100%" }}
+                          />
+                        </div>
+
+                        <div className="entry-actions">
+                          <button
+                            className="expand-button"
+                            onClick={cancelEdit}
+                            disabled={savingEdit}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="delete-button small"
+                            onClick={() => saveEdit(mood.id)}
+                            disabled={savingEdit}
+                          >
+                            {savingEdit ? "Saving..." : "Save changes"}
+                          </button>
                         </div>
                       </div>
-                    )}
+                    ) : (
+                      <>
+                        {/* FULL JOURNAL (respect privacyMode) */}
+                        {!privacyMode && mood.journal_text && (
+                          <div className="journal-full">
+                            <strong>Full Journal</strong>
+                            <div className="journal-text">{mood.journal_text}</div>
+                          </div>
+                        )}
 
-                    <div
-                      style={{
-                        marginTop: "10px",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: "10px",
-                      }}
-                    >
-                      <button
-                        className="delete-button"
-                        onClick={() => handleDelete(mood.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                        {privacyMode && (
+                          <div className="journal-full">
+                            <strong>Privacy Mode</strong>
+                            <div className="journal-text">
+                              Journal text is hidden. Turn off Privacy Mode to view.
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="entry-actions">
+                          <button className="expand-button" onClick={() => startEdit(mood)}>
+                            Edit
+                          </button>
+                          <button
+                            className="delete-button small"
+                            onClick={() => handleDelete(mood.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* PRIMARY ACTION BUTTON */}
               <button className="expand-button" onClick={() => toggleExpand(mood.id)}>
                 {isExpanded ? "Collapse" : "Expand"}
               </button>
