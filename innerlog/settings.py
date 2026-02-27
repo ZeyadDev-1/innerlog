@@ -146,3 +146,10 @@ AUTH_USER_MODEL = 'accounts.User'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+# Email (DEV: prints emails to console)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@innerlog.local"
+
+# Frontend URL used in email links (change later in prod)
+FRONTEND_URL = "http://localhost:5173"
