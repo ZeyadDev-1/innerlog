@@ -56,3 +56,25 @@ class RegisterWithEmailView(generics.CreateAPIView):
             recipient_list=[user.email],
             fail_silently=False,
         )
+
+class VerifyEmailView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        uid = request.data.get("uid")
+        token = request.data.get("token")
+        if not uid or not token:
+            return Response({"detail": "uid and token are required"}, status=400)
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except Exception:
+            return Response({"detail": "Invalid uid"}, status=400)
+
+        if email_verification_token.check_token(user, token):
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+            return Response({"detail": "Email verified successfully."})
+
+        return Response({"detail": "Invalid or expired token"}, status=400)
