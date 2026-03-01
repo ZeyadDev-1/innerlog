@@ -108,3 +108,28 @@ class PasswordResetRequestView(APIView):
             fail_silently=False,
         )
         return Response({"detail": "If the email exists, a reset link was sent."})
+    
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        uid = request.data.get("uid")
+        token = request.data.get("token")
+        new_password = request.data.get("new_password")
+
+        if not uid or not token or not new_password:
+            return Response({"detail": "uid, token, new_password are required"}, status=400)
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except Exception:
+            return Response({"detail": "Invalid uid"}, status=400)
+
+        if not password_reset_token.check_token(user, token):
+            return Response({"detail": "Invalid or expired token"}, status=400)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({"detail": "Password has been reset successfully."})
