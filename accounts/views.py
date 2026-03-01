@@ -13,6 +13,9 @@ from django.utils.encoding import force_bytes, force_str
 from .serializers import RegisterWithEmailSerializer
 from .tokens import email_verification_token
 
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+password_reset_token = PasswordResetTokenGenerator()
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
@@ -78,3 +81,30 @@ class VerifyEmailView(APIView):
             return Response({"detail": "Email verified successfully."})
 
         return Response({"detail": "Invalid or expired token"}, status=400)
+    
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"detail": "email is required"}, status=400)
+
+        user = User.objects.filter(email=email).first()
+        # Always return success to avoid email enumeration
+        if not user:
+            return Response({"detail": "If the email exists, a reset link was sent."})
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = password_reset_token.make_token(user)
+
+        reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
+
+        send_mail(
+            subject="Reset your InnerLog password",
+            message=f"Click to reset: {reset_url}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        return Response({"detail": "If the email exists, a reset link was sent."})
