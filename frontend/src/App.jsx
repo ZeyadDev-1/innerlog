@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import { Routes, Route, Navigate } from "react-router-dom";
 import api from "./api/client";
 
 import Login from "./pages/Login";
@@ -78,7 +77,6 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
       <Routes>
         {/* Public */}
         <Route
@@ -118,6 +116,5 @@ export default function App() {
           element={<Navigate to={loggedIn ? "/" : "/login"} replace />}
         />
       </Routes>
-    </BrowserRouter>
   );
 }
