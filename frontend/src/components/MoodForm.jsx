@@ -34,7 +34,7 @@ export default function MoodForm({ onAdd, onSuccess }) {
 
       onAdd();
       onSuccess("Mood saved successfully!");
-    } catch (err) {
+    } catch {
       setError("Failed to save mood.");
     } finally {
       setSaving(false);
