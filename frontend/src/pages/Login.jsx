@@ -28,7 +28,7 @@ export default function Login({ onLogin }) {
     } catch (err) {
       const msg =
         err?.response?.data?.detail ||
-        "Login failed. Check username/password (and verify your email if required).";
+        "Login failed. Check your username and password.";
       setError(msg);
     } finally {
       setLoading(false);
