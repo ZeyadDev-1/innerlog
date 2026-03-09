@@ -8,10 +8,22 @@ import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 
+const THEME_KEY = "innerlog_theme";
+
+function getInitialTheme() {
+  const storedTheme = localStorage.getItem(THEME_KEY);
+  if (storedTheme === "light" || storedTheme === "dark") return storedTheme;
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(
     !!localStorage.getItem("access_token")
   );
+  const [theme, setTheme] = useState(getInitialTheme);
 
   // Privacy mode (stored)
   const [privacyMode, setPrivacyMode] = useState(
@@ -64,9 +76,20 @@ export default function App() {
     if (loggedIn) loadAllData();
   }, [loggedIn]);
 
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
   const handleLogout = () => {
     localStorage.clear();
     setLoggedIn(false);
+  };
+
+  const toggleTheme = () => {
+    setTheme((previousTheme) =>
+      previousTheme === "light" ? "dark" : "light"
+    );
   };
 
   // Private route wrapper
@@ -76,6 +99,15 @@ export default function App() {
   }
 
   return (
+    <>
+      <button
+        type="button"
+        className="theme-toggle btn btn-sm btn-primary"
+        onClick={toggleTheme}
+      >
+        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+      </button>
+
       <Routes>
         {/* Public */}
         <Route
@@ -114,5 +146,6 @@ export default function App() {
           element={<Navigate to={loggedIn ? "/" : "/login"} replace />}
         />
       </Routes>
+    </>
   );
 }
