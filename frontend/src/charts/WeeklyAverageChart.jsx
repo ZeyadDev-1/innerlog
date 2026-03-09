@@ -16,7 +16,7 @@ export default function WeeklyAverageChart({ data }) {
             {
               label: "Weekly Average",
               data: data.map(d => d.avg_mood),
-              borderColor: "#10b981",
+              borderColor: "#9a7b52",
               tension: 0.3,
             },
           ],

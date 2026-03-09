@@ -11,7 +11,7 @@ export default function MoodTrendChart({ data }) {
           {
             label: "Mood Trend",
             data: data.map(d => d.mood_score),
-            borderColor: "#4f46e5",
+            borderColor: "#8b6f47",
             tension: 0.3,
           },
         ],
