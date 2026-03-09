@@ -13,7 +13,7 @@ export default function MoodDistributionChart({ data }) {
             {
               label: "Entries",
               data: data.map(d => d.count),
-              backgroundColor: "#f59e0b",
+              backgroundColor: "#c79f6a",
             },
           ],
         }}

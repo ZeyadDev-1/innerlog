@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #f4f6f9;
+  background-color: #f5eee3;
 }
 
 .app-container {
@@ -24,7 +24,7 @@ body {
 button {
   padding: 8px 14px;
   border: none;
-  background-color: #4f46e5;
+  background-color: #8b6f47;
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -41,7 +41,7 @@ textarea {
   margin-bottom: 12px;
   padding: 8px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #d3c2ac;
 }
 
 textarea {
@@ -82,12 +82,12 @@ textarea {
   padding: 40px;
   text-align: center;
   font-weight: bold;
-  color: #555;
+  color: #8a775f;
 }
 
 .success-message {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: #e9f4e2;
+  color: #3f5a30;
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -111,8 +111,8 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #eef2ff;
-  color: #3730a3;
+  background: #efe2d1;
+  color: #6f5537;
   font-weight: 600;
 }
 
@@ -142,12 +142,12 @@ textarea {
   justify-content: space-between;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e4d7c6;
 }
 
 .mood-date {
   font-size: 12px;
-  color: #666;
+  color: #7a6854;
 }
 
 .delete-button {
@@ -157,20 +157,20 @@ textarea {
 .mood-meta {
   font-size: 12px;
   margin-top: 4px;
-  color: #444;
+  color: #5f4c39;
 }
 
 .expand-button {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: #e8d7c0;
+  color: #6f5537;
   font-weight: 600;
   height: fit-content;
 }
 
 .journal-full {
   margin-top: 10px;
-  background: #f9fafb;
-  border: 1px solid #eee;
+  background: #faf4ea;
+  border: 1px solid #e4d7c6;
   border-radius: 8px;
   padding: 12px;
 }
@@ -196,13 +196,13 @@ textarea {
 .small-label {
   display: block;
   font-size: 12px;
-  color: #555;
+  color: #8a775f;
   margin-bottom: 6px;
 }
 .mood-meta {
   font-size: 12px;
   margin-top: 4px;
-  color: #444;
+  color: #5f4c39;
 }
 
 .auth-page {
@@ -230,7 +230,7 @@ textarea {
 .auth-subtitle {
   margin-top: 6px;
   margin-bottom: 18px;
-  color: #666;
+  color: #7a6854;
   font-size: 14px;
 }
 
@@ -242,14 +242,14 @@ textarea {
 
 .auth-label {
   font-size: 13px;
-  color: #444;
+  color: #5f4c39;
   margin-top: 6px;
 }
 
 .auth-input {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #d8c7b0;
 }
 
 .auth-primary {
@@ -262,8 +262,8 @@ textarea {
   text-align: center;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #eef2ff;
-  color: #3730a3;
+  background: #efe2d1;
+  color: #6f5537;
   font-weight: 700;
   text-decoration: none;
 }
@@ -273,7 +273,7 @@ textarea {
   text-align: center;
   font-size: 13px;
   text-decoration: none;
-  color: #555;
+  color: #8a775f;
 }
 
 .auth-error {

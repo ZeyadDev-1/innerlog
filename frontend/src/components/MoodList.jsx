@@ -143,7 +143,7 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
                             onChange={(e) => setEditMoodScore(Number(e.target.value))}
                             style={{ width: "100%" }}
                           />
-                          <div style={{ fontSize: 12, color: "#666" }}>
+                          <div style={{ fontSize: 12, color: "#7a6854" }}>
                             {moodEmojis[editMoodScore]} Mood {editMoodScore}
                           </div>
                         </div>
