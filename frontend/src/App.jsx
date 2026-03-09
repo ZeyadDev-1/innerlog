@@ -7,6 +7,9 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
+import Layout from "./components/Layout";
 
 const THEME_KEY = "innerlog_theme";
 
@@ -99,15 +102,12 @@ export default function App() {
   }
 
   return (
-    <>
-      <button
-        type="button"
-        className="theme-toggle btn btn-sm btn-primary"
-        onClick={toggleTheme}
-      >
-        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-      </button>
-
+    <Layout
+      loggedIn={loggedIn}
+      onLogout={handleLogout}
+      theme={theme}
+      onThemeToggle={toggleTheme}
+    >
       <Routes>
         {/* Public */}
         <Route
@@ -117,6 +117,8 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/contact" element={<ContactUs />} />
 
         {/* Private */}
         <Route
@@ -126,7 +128,6 @@ export default function App() {
               <Dashboard
                 privacyMode={privacyMode}
                 togglePrivacy={togglePrivacy}
-                handleLogout={handleLogout}
                 successMessage={successMessage}
                 loading={loading}
                 moods={moods}
@@ -146,6 +147,6 @@ export default function App() {
           element={<Navigate to={loggedIn ? "/" : "/login"} replace />}
         />
       </Routes>
-    </>
+    </Layout>
   );
 }
