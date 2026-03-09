@@ -7,7 +7,6 @@ import MoodDistributionChart from "../charts/MoodDistributionChart";
 export default function Dashboard({
   privacyMode,
   togglePrivacy,
-  handleLogout,
   successMessage,
   loading,
   moods,
@@ -26,8 +25,6 @@ export default function Dashboard({
           <button onClick={togglePrivacy}>
             {privacyMode ? "Privacy: ON" : "Privacy: OFF"}
           </button>
-
-          <button onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
