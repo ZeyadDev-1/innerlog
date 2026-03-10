@@ -22,12 +22,11 @@ export default function MoodForm({ onAdd, onSuccess }) {
 
     try {
       await api.post("journal/moods/", {
-        mood_score: Number(mood), // ensure numeric
+        mood_score: Number(mood),
         journal_text: text,
         emotions,
       });
 
-      // Clear form after success
       setMood(3);
       setText("");
       setEmotions("");
@@ -42,41 +41,37 @@ export default function MoodForm({ onAdd, onSuccess }) {
   };
 
   return (
-    <>
-      <h3>Add Mood</h3>
+    <section className="dashboard-card mood-form-card">
+      <div className="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <p className="section-kicker mb-1">Daily check-in</p>
+          <h3 className="section-title mb-0">How are you feeling today?</h3>
+        </div>
+      </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-danger small mb-3">{error}</p>}
 
-      {/* Emoji Slider */}
-      <div style={{ marginBottom: "16px" }}>
-        <label
-          style={{
-            display: "block",
-            fontWeight: "600",
-            marginBottom: "6px",
-          }}
-        >
-          Mood: {moodLabels[mood]?.emoji} {moodLabels[mood]?.text}
-        </label>
+      <div className="mood-indicator mb-3">
+        <span className="mood-emoji" aria-hidden="true">{moodLabels[mood]?.emoji}</span>
+        <div>
+          <p className="small-label mb-1">Current mood</p>
+          <p className="mood-value mb-0">{moodLabels[mood]?.text}</p>
+        </div>
+      </div>
 
+      <div className="mb-3">
+        <label className="small-label" htmlFor="mood-slider">Mood score</label>
         <input
+          id="mood-slider"
+          className="mood-slider"
           type="range"
           min="1"
           max="5"
           step="1"
           value={mood}
           onChange={(e) => setMood(Number(e.target.value))}
-          style={{ width: "95%" }}
         />
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "25px",
-            marginTop: "3px",
-          }}
-        >
+        <div className="mood-scale" aria-hidden="true">
           <span>😞</span>
           <span>😕</span>
           <span>😐</span>
@@ -85,24 +80,27 @@ export default function MoodForm({ onAdd, onSuccess }) {
         </div>
       </div>
 
-      {/* Emotions */}
+      <label className="small-label" htmlFor="mood-emotions">Emotions</label>
       <input
-        placeholder="Emotions (e.g., anxious, excited, tired)"
+        id="mood-emotions"
+        className="form-input"
+        placeholder="e.g., calm, focused, hopeful"
         value={emotions}
         onChange={(e) => setEmotions(e.target.value)}
       />
 
-      {/* Journal */}
+      <label className="small-label" htmlFor="mood-journal">Journal note</label>
       <textarea
-        placeholder="Write about your day..."
+        id="mood-journal"
+        className="form-input form-textarea"
+        placeholder="Write a gentle reflection about your day..."
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
 
-      {/* Save Button */}
-      <button onClick={submit} disabled={saving}>
-        {saving ? "Saving..." : "Save"}
+      <button type="button" className="btn btn-primary w-100 mt-2" onClick={submit} disabled={saving}>
+        {saving ? "Saving..." : "Save reflection"}
       </button>
-    </>
+    </section>
   );
 }

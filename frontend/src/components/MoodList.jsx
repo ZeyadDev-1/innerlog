@@ -6,7 +6,6 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
   const [visibleCount, setVisibleCount] = useState(5);
   const [expandedId, setExpandedId] = useState(null);
 
-  // Editing state
   const [editingId, setEditingId] = useState(null);
   const [editMoodScore, setEditMoodScore] = useState(3);
   const [editEmotions, setEditEmotions] = useState("");
@@ -59,7 +58,7 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
         journal_text: editJournal,
       });
       setEditingId(null);
-      onDelete(); // re-fetch (same function you use for refresh)
+      onDelete();
       onSuccess("Entry updated successfully.");
     } catch (err) {
       console.error("Failed to update mood:", err);
@@ -84,99 +83,104 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
   };
 
   return (
-    <div className="moodlist-card">
-      <button className="dropdown-button" onClick={toggleOpen}>
-        <span>Recent Entries ({sortedMoods.length})</span>
-        <span className={`arrow ${open ? "open" : ""}`}>▼</span>
+    <section className="dashboard-card moodlist-card">
+      <button type="button" className="dropdown-button" onClick={toggleOpen}>
+        <span>Recent Entries</span>
+        <div className="d-flex align-items-center gap-2">
+          <span className="entries-count">{sortedMoods.length}</span>
+          <span className={`arrow ${open ? "open" : ""}`}>⌄</span>
+        </div>
       </button>
 
       <div className={`dropdown-content ${open ? "open" : ""}`}>
-        {sortedMoods.length === 0 && <p>No entries yet.</p>}
+        {sortedMoods.length === 0 && <p className="mb-0 text-muted">No entries yet.</p>}
 
-        {shownMoods.map((mood) => {
-          const isExpanded = expandedId === mood.id;
-          const isEditing = editingId === mood.id;
+        <div className="d-grid gap-3">
+          {shownMoods.map((mood) => {
+            const isExpanded = expandedId === mood.id;
+            const isEditing = editingId === mood.id;
 
-          return (
-            <div key={mood.id} className="mood-row">
-              <div style={{ flex: 1 }}>
-                <strong>
-                  {moodEmojis[mood.mood_score]} Mood {mood.mood_score}
-                </strong>
-
-                <div className="mood-date">
-                  {new Date(mood.created_at).toLocaleString()}
+            return (
+              <article key={mood.id} className={`entry-card ${isExpanded ? "expanded" : ""}`}>
+                <div className="entry-head d-flex justify-content-between gap-3">
+                  <div>
+                    <p className="entry-title mb-1">
+                      {moodEmojis[mood.mood_score]} Mood {mood.mood_score}
+                    </p>
+                    <p className="mood-date mb-0">{new Date(mood.created_at).toLocaleString()}</p>
+                  </div>
+                  <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => toggleExpand(mood.id)}>
+                    {isExpanded ? "Collapse" : "Expand"}
+                  </button>
                 </div>
 
                 {mood.emotions && (
-                  <div className="mood-meta">
+                  <p className="mood-meta mb-0">
                     <strong>Emotions:</strong> {mood.emotions}
-                  </div>
+                  </p>
                 )}
 
-                {/* COLLAPSED PREVIEW (respect privacyMode) */}
                 {!privacyMode && !isExpanded && mood.journal_text && (
-                  <div className="mood-meta">
+                  <p className="mood-meta mb-0">
                     <strong>Journal:</strong>{" "}
                     {mood.journal_text.length > 80
-                      ? mood.journal_text.slice(0, 80) + "..."
+                      ? `${mood.journal_text.slice(0, 80)}...`
                       : mood.journal_text}
-                  </div>
+                  </p>
                 )}
 
-                {/* EXPANDED */}
                 {isExpanded && (
-                  <div style={{ marginTop: "10px" }}>
-                    {/* EDIT MODE */}
+                  <div className="expanded-entry">
                     {isEditing ? (
                       <div className="journal-full">
-                        <strong>Edit Entry</strong>
+                        <p className="entry-title mb-3">Edit Entry</p>
 
-                        <div style={{ marginTop: 10 }}>
-                          <label className="small-label">Mood Score</label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="5"
-                            step="1"
-                            value={editMoodScore}
-                            onChange={(e) => setEditMoodScore(Number(e.target.value))}
-                            style={{ width: "100%" }}
-                          />
-                          <div style={{ fontSize: 12, color: "#7a6854" }}>
-                            {moodEmojis[editMoodScore]} Mood {editMoodScore}
-                          </div>
-                        </div>
+                        <label className="small-label" htmlFor={`edit-mood-${mood.id}`}>
+                          Mood score
+                        </label>
+                        <input
+                          id={`edit-mood-${mood.id}`}
+                          className="mood-slider"
+                          type="range"
+                          min="1"
+                          max="5"
+                          step="1"
+                          value={editMoodScore}
+                          onChange={(e) => setEditMoodScore(Number(e.target.value))}
+                        />
+                        <p className="mood-meta mt-1 mb-3">
+                          {moodEmojis[editMoodScore]} Mood {editMoodScore}
+                        </p>
 
-                        <div style={{ marginTop: 10 }}>
-                          <label className="small-label">Emotions</label>
-                          <input
-                            value={editEmotions}
-                            onChange={(e) => setEditEmotions(e.target.value)}
-                            placeholder="e.g., tired, anxious"
-                          />
-                        </div>
+                        <label className="small-label" htmlFor={`edit-emotions-${mood.id}`}>
+                          Emotions
+                        </label>
+                        <input
+                          id={`edit-emotions-${mood.id}`}
+                          className="form-input"
+                          value={editEmotions}
+                          onChange={(e) => setEditEmotions(e.target.value)}
+                          placeholder="e.g., tired, anxious"
+                        />
 
-                        <div style={{ marginTop: 10 }}>
-                          <label className="small-label">Journal</label>
-                          <textarea
-                            value={editJournal}
-                            onChange={(e) => setEditJournal(e.target.value)}
-                            placeholder="Write..."
-                            style={{ width: "100%" }}
-                          />
-                        </div>
+                        <label className="small-label" htmlFor={`edit-journal-${mood.id}`}>
+                          Journal
+                        </label>
+                        <textarea
+                          id={`edit-journal-${mood.id}`}
+                          className="form-input form-textarea"
+                          value={editJournal}
+                          onChange={(e) => setEditJournal(e.target.value)}
+                          placeholder="Write..."
+                        />
 
-                        <div className="entry-actions">
-                          <button
-                            className="expand-button"
-                            onClick={cancelEdit}
-                            disabled={savingEdit}
-                          >
+                        <div className="entry-actions d-flex justify-content-end gap-2">
+                          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={cancelEdit} disabled={savingEdit}>
                             Cancel
                           </button>
                           <button
-                            className="delete-button small"
+                            type="button"
+                            className="btn btn-sm btn-primary"
                             onClick={() => saveEdit(mood.id)}
                             disabled={savingEdit}
                           >
@@ -186,31 +190,27 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
                       </div>
                     ) : (
                       <>
-                        {/* FULL JOURNAL (respect privacyMode) */}
                         {!privacyMode && mood.journal_text && (
                           <div className="journal-full">
-                            <strong>Full Journal</strong>
+                            <p className="entry-title mb-2">Full Journal</p>
                             <div className="journal-text">{mood.journal_text}</div>
                           </div>
                         )}
 
                         {privacyMode && (
                           <div className="journal-full">
-                            <strong>Privacy Mode</strong>
+                            <p className="entry-title mb-2">Privacy Mode</p>
                             <div className="journal-text">
                               Journal text is hidden. Turn off Privacy Mode to view.
                             </div>
                           </div>
                         )}
 
-                        <div className="entry-actions">
-                          <button className="expand-button" onClick={() => startEdit(mood)}>
+                        <div className="entry-actions d-flex justify-content-end gap-2">
+                          <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => startEdit(mood)}>
                             Edit
                           </button>
-                          <button
-                            className="delete-button small"
-                            onClick={() => handleDelete(mood.id)}
-                          >
+                          <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDelete(mood.id)}>
                             Delete
                           </button>
                         </div>
@@ -218,17 +218,14 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
                     )}
                   </div>
                 )}
-              </div>
-
-              <button className="expand-button" onClick={() => toggleExpand(mood.id)}>
-                {isExpanded ? "Collapse" : "Expand"}
-              </button>
-            </div>
-          );
-        })}
+              </article>
+            );
+          })}
+        </div>
 
         {open && hasMore && (
           <button
+            type="button"
             className="show-more-button"
             onClick={() => setVisibleCount((c) => c + 5)}
           >
@@ -240,6 +237,6 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
           <div className="all-shown-note">All entries shown.</div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

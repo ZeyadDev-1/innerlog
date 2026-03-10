@@ -3,21 +3,22 @@ import { Chart as ChartJS } from "chart.js/auto";
 
 export default function MoodTrendChart({ data }) {
   return (
-  <div style={{ background: "white", padding: "20px", borderRadius: "8px" }}>
-    <Line
-      data={{
-        labels: data.map(d => d.date),
-        datasets: [
-          {
-            label: "Mood Trend",
-            data: data.map(d => d.mood_score),
-            borderColor: "#8b6f47",
-            tension: 0.3,
-          },
-        ],
-      }}
-    />
-  </div>
-);
-
+    <div className="chart-wrapper">
+      <Line
+        data={{
+          labels: data.map((d) => d.date),
+          datasets: [
+            {
+              label: "Mood Trend",
+              data: data.map((d) => d.mood_score),
+              borderColor: "#8b6f47",
+              backgroundColor: "rgba(139, 111, 71, 0.15)",
+              tension: 0.3,
+              fill: true,
+            },
+          ],
+        }}
+      />
+    </div>
+  );
 }
