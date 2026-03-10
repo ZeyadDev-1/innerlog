@@ -37,45 +37,52 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h2 className="auth-title">Welcome back</h2>
-        <p className="auth-subtitle">Login to continue to InnerLog</p>
+      <div className="auth-card card border-0">
+        <div className="card-body p-4 p-md-5">
+          <h2 className="auth-title">Welcome back</h2>
+          <p className="auth-subtitle">Sign in to continue your InnerLog journey.</p>
 
-        {error && <div className="auth-error">{error}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={submit} className="auth-form">
-          <label className="auth-label">Username</label>
-          <input
-            className="auth-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter username"
-            autoComplete="username"
-          />
+          <form onSubmit={submit} className="auth-form">
+            <div>
+              <label className="auth-label form-label" htmlFor="login-username">Username</label>
+              <input
+                id="login-username"
+                className="auth-input form-control"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                autoComplete="username"
+              />
+            </div>
 
-          <label className="auth-label">Password</label>
-          <input
-            className="auth-input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            autoComplete="current-password"
-          />
+            <div>
+              <label className="auth-label form-label" htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                className="auth-input form-control"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+            </div>
 
-          <button className="auth-primary" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+            <button className="auth-primary btn btn-primary" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
 
-          {/* Under login fields */}
-          <Link className="auth-secondary" to="/signup">
-            Sign up
-          </Link>
+            <Link className="auth-secondary btn btn-outline-secondary" to="/signup">
+              Don&apos;t have an account? Sign up
+            </Link>
 
-          <Link className="auth-link" to="/forgot-password">
-            I forgot my password
-          </Link>
-        </form>
+            <Link className="auth-link" to="/forgot-password">
+              Forgot password?
+            </Link>
+          </form>
+        </div>
       </div>
     </div>
   );

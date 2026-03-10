@@ -38,10 +38,10 @@ body[data-theme="dark"] {
   --surface-raised: #282c3d;
   --surface-subtle: #372d22;
   --border-soft: #4a3c2d;
-  --text-primary: #bf7309;
-  --text-muted: #8a74db;
+  --text-primary: #f2e8da;
+  --text-muted: #beab97;
 
-  background: var(--bs-body-bg);
+  background: radial-gradient(circle at top, #1a1732 0%, #0c091e 62%);
   color: var(--bs-body-color);
 }
 
@@ -89,4 +89,33 @@ button:hover,
 .dropdown-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(var(--brand-primary-rgb), 0.2);
+}
+
+.auth-secondary.btn {
+  border-color: color-mix(in srgb, var(--bs-primary) 42%, transparent);
+  color: color-mix(in srgb, var(--bs-primary) 78%, var(--text-primary) 22%);
+  background-color: color-mix(in srgb, var(--surface-subtle) 76%, transparent);
+}
+
+.auth-secondary.btn:hover {
+  border-color: color-mix(in srgb, var(--bs-primary) 68%, transparent);
+  background-color: color-mix(in srgb, var(--surface-subtle) 88%, transparent);
+}
+
+body[data-theme="dark"] .auth-card {
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+body[data-theme="dark"] .auth-error {
+  background: #5c1f2a;
+  color: #ffd3d7;
+}
+
+body[data-theme="dark"] .auth-primary {
+  background: linear-gradient(130deg, #d0b089, #9f7950);
+  color: #1a140f;
+}
+
+body[data-theme="dark"] .content-page-subtext {
+  color: #9e7539;
 }

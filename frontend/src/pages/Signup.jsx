@@ -32,16 +32,18 @@ export default function Signup() {
   if (done) {
     return (
       <div className="auth-page">
-        <div className="auth-card">
-          <h2 className="auth-title">Check your email</h2>
-          <p className="auth-subtitle">
-            We sent a verification link to <strong>{email}</strong>.  
-            Open the email and click the link to activate your account.
-          </p>
+        <div className="auth-card card border-0">
+          <div className="card-body p-4 p-md-5">
+            <h2 className="auth-title">Check your email</h2>
+            <p className="auth-subtitle">
+              We sent a verification link to <strong>{email}</strong>. Open the email and
+              click the link to activate your account.
+            </p>
 
-          <Link className="auth-secondary" to="/login">
-            Back to login
-          </Link>
+            <Link className="auth-secondary btn btn-outline-secondary" to="/login">
+              Back to login
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -49,50 +51,61 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h2 className="auth-title">Create account</h2>
-        <p className="auth-subtitle">Sign up and verify your email to continue</p>
+      <div className="auth-card card border-0">
+        <div className="card-body p-4 p-md-5">
+          <h2 className="auth-title">Create account</h2>
+          <p className="auth-subtitle">Begin your journaling journey with InnerLog.</p>
 
-        {error && <div className="auth-error">{error}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={submit} className="auth-form">
-          <label className="auth-label">Username</label>
-          <input
-            className="auth-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a username"
-            autoComplete="username"
-          />
+          <form onSubmit={submit} className="auth-form">
+            <div>
+              <label className="auth-label form-label" htmlFor="signup-username">Username</label>
+              <input
+                id="signup-username"
+                className="auth-input form-control"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Choose a username"
+                autoComplete="username"
+              />
+            </div>
 
-          <label className="auth-label">Email</label>
-          <input
-            className="auth-input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
+            <div>
+              <label className="auth-label form-label" htmlFor="signup-email">Email</label>
+              <input
+                id="signup-email"
+                className="auth-input form-control"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
 
-          <label className="auth-label">Password</label>
-          <input
-            className="auth-input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a strong password"
-            autoComplete="new-password"
-          />
+            <div>
+              <label className="auth-label form-label" htmlFor="signup-password">Password</label>
+              <input
+                id="signup-password"
+                className="auth-input form-control"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a strong password"
+                autoComplete="new-password"
+              />
+            </div>
 
-          <button className="auth-primary" disabled={loading}>
-            {loading ? "Creating..." : "Sign up"}
-          </button>
+            <button className="auth-primary btn btn-primary" disabled={loading}>
+              {loading ? "Creating account..." : "Sign up"}
+            </button>
 
-          <Link className="auth-link" to="/login">
-            Already have an account? Login
-          </Link>
-        </form>
+            <Link className="auth-link" to="/login">
+              Already have an account? Login
+            </Link>
+          </form>
+        </div>
       </div>
     </div>
   );
