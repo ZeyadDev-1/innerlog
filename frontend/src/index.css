@@ -323,6 +323,10 @@ textarea {
   color: var(--text-primary);
 }
 
+body[data-theme="dark"] .content-page-subtext {
+  color: #9e7539;
+}
+
 @media (max-width: 992px) {
   .layout-navbar .navbar-collapse {
     margin-top: 0.75rem;
