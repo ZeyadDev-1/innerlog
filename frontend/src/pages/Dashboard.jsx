@@ -17,12 +17,15 @@ export default function Dashboard({
   showSuccess,
 }) {
   return (
-    <div className="app-container">
-      <header className="header">
-        <h1>InnerLog</h1>
+    <div className="app-container dashboard-view container">
+      <header className="dashboard-header d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+        <div>
+          <p className="dashboard-kicker mb-2">Your emotional wellness space</p>
+          <h1 className="mb-0">InnerLog Dashboard</h1>
+        </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={togglePrivacy}>
+        <div className="d-flex align-items-center gap-2">
+          <button type="button" className="btn btn-sm btn-outline-primary" onClick={togglePrivacy}>
             {privacyMode ? "Privacy: ON" : "Privacy: OFF"}
           </button>
         </div>
@@ -30,16 +33,16 @@ export default function Dashboard({
 
       {successMessage && <div className="success-message">{successMessage}</div>}
 
-      <div className="dashboard">
-        <div className="left-panel">
+      <div className="row g-4 align-items-start dashboard-grid">
+        <div className="col-12 col-lg-4">
           <MoodForm onAdd={loadAllData} onSuccess={showSuccess} />
         </div>
 
-        <div className="right-panel">
+        <div className="col-12 col-lg-8">
           {loading ? (
             <div className="loading">Loading dashboard...</div>
           ) : (
-            <>
+            <div className="d-grid gap-4">
               <MoodList
                 moods={moods}
                 onDelete={loadAllData}
@@ -47,10 +50,21 @@ export default function Dashboard({
                 privacyMode={privacyMode}
               />
 
-              <MoodTrendChart data={trend} />
-              <WeeklyAverageChart data={weekly} />
-              <MoodDistributionChart data={distribution} />
-            </>
+              <section className="dashboard-card chart-panel">
+                <h3 className="section-title">Mood Trend</h3>
+                <MoodTrendChart data={trend} />
+              </section>
+
+              <section className="dashboard-card chart-panel">
+                <h3 className="section-title">Weekly Average Mood</h3>
+                <WeeklyAverageChart data={weekly} />
+              </section>
+
+              <section className="dashboard-card chart-panel">
+                <h3 className="section-title">Mood Distribution</h3>
+                <MoodDistributionChart data={distribution} />
+              </section>
+            </div>
           )}
         </div>
       </div>
