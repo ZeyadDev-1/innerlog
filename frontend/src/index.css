@@ -324,6 +324,19 @@ body {
   letter-spacing: -0.02em;
 }
 
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--text-primary) 88%, var(--bs-primary) 12%);
+}
+
+.auth-brand-logo {
+  filter: drop-shadow(0 4px 8px rgba(var(--bs-primary-rgb), 0.25));
+}
+
 .auth-subtitle {
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
@@ -440,17 +453,40 @@ body {
   color: var(--bs-primary);
 }
 
+.layout-navbar .navbar-brand {
+  color: var(--text-primary);
+}
+
+.layout-navbar .navbar-brand .innerlog-logo {
+  filter: drop-shadow(0 4px 9px rgba(var(--bs-primary-rgb), 0.2));
+}
+
 .layout-footer {
   background: var(--surface-raised);
   color: var(--text-muted);
 }
 
+.innerlog-logo {
+  overflow: visible;
+}
+
 .innerlog-logo-heart {
-  fill: color-mix(in srgb, var(--bs-primary) 85%, #ffffff 15%);
+  fill: color-mix(in srgb, var(--bs-primary) 78%, #b87746 22%);
+}
+
+.innerlog-logo-heart-shade {
+  fill: color-mix(in srgb, var(--bs-primary) 58%, #f4d8ba 42%);
 }
 
 .innerlog-logo-line {
-  stroke: var(--bs-body-bg);
+  stroke: color-mix(in srgb, var(--surface-raised) 74%, #fff7eb 26%);
+}
+
+.innerlog-logo-outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--bs-primary) 58%, #5f4028 42%);
+  stroke-width: 1.3;
+  opacity: 0.66;
 }
 
 .content-page {
@@ -494,6 +530,18 @@ body[data-theme="dark"] .content-page-subtext {
 .about-hero {
   position: relative;
   overflow: hidden;
+}
+
+.about-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: color-mix(in srgb, var(--text-primary) 84%, var(--bs-primary) 16%);
+  font-weight: 700;
+}
+
+.about-brand-logo {
+  filter: drop-shadow(0 6px 12px rgba(var(--bs-primary-rgb), 0.25));
 }
 
 .about-hero::after {
@@ -559,6 +607,10 @@ body[data-theme="dark"] .about-values {
     color-mix(in srgb, #2d2342 84%, #1c152c 16%),
     color-mix(in srgb, #221c32 92%, #100c1c 8%)
   );
+}
+
+body[data-theme="dark"] .innerlog-logo-line {
+  stroke: color-mix(in srgb, var(--surface-raised) 45%, #f0dfc8 55%);
 }
 
 body[data-theme="dark"] .about-note {

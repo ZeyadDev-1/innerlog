@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/client";
+import InnerLogLogo from "../components/InnerLogLogo";
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -39,6 +40,10 @@ export default function Login({ onLogin }) {
     <div className="auth-page">
       <div className="auth-card card border-0">
         <div className="card-body p-4 p-md-5">
+          <div className="auth-brand mb-3">
+            <InnerLogLogo size={42} className="auth-brand-logo" />
+            <span>InnerLog</span>
+          </div>
           <h2 className="auth-title">Welcome back</h2>
           <p className="auth-subtitle">Sign in to continue your InnerLog journey.</p>
 

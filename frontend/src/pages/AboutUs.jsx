@@ -1,3 +1,5 @@
+import InnerLogLogo from "../components/InnerLogLogo";
+
 const coreValues = [
   {
     title: "Privacy First",
@@ -42,6 +44,10 @@ export default function AboutUs() {
     <section className="container about-page py-3 py-lg-4">
       <div className="about-hero card border-0 shadow-sm mb-4 mb-lg-5">
         <div className="card-body p-4 p-md-5">
+          <div className="about-brand mb-3">
+            <InnerLogLogo size={38} className="about-brand-logo" />
+            <span>InnerLog</span>
+          </div>
           <p className="section-kicker mb-2">About InnerLog</p>
           <h1 className="about-title mb-3">A calm space for emotional reflection</h1>
           <p className="about-lead mb-0">
