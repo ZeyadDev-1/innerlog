@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/client";
+import InnerLogLogo from "../components/InnerLogLogo";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -34,6 +35,10 @@ export default function Signup() {
       <div className="auth-page">
         <div className="auth-card card border-0">
           <div className="card-body p-4 p-md-5">
+            <div className="auth-brand mb-3">
+              <InnerLogLogo size={42} className="auth-brand-logo" />
+              <span>InnerLog</span>
+            </div>
             <h2 className="auth-title">Check your email</h2>
             <p className="auth-subtitle">
               We sent a verification link to <strong>{email}</strong>. Open the email and
@@ -53,6 +58,10 @@ export default function Signup() {
     <div className="auth-page">
       <div className="auth-card card border-0">
         <div className="card-body p-4 p-md-5">
+          <div className="auth-brand mb-3">
+            <InnerLogLogo size={42} className="auth-brand-logo" />
+            <span>InnerLog</span>
+          </div>
           <h2 className="auth-title">Create account</h2>
           <p className="auth-subtitle">Begin your journaling journey with InnerLog.</p>
 
