@@ -4,6 +4,15 @@ body {
   background: var(--bs-body-bg);
 }
 
+
+:root {
+  --motion-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-snappy: cubic-bezier(0.2, 0.72, 0.2, 1);
+  --motion-duration-fast: 180ms;
+  --motion-duration-medium: 320ms;
+  --motion-duration-slow: 560ms;
+}
+
 .app-container {
   max-width: 1120px;
   margin: 1.5rem auto 2.5rem;
@@ -21,6 +30,7 @@ body {
   letter-spacing: 0.08em;
   font-weight: 700;
   color: var(--text-muted);
+  transition: color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .dashboard-header h1 {
@@ -40,11 +50,13 @@ body {
   border-radius: 1rem;
   padding: 1.2rem;
   box-shadow: 0 12px 28px rgba(var(--brand-primary-rgb), 0.12);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform var(--motion-duration-medium) var(--motion-smooth),
+    box-shadow var(--motion-duration-medium) var(--motion-smooth),
+    border-color var(--motion-duration-medium) var(--motion-smooth);
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 16px 30px rgba(var(--brand-primary-rgb), 0.18);
   border-color: color-mix(in srgb, var(--bs-primary) 35%, var(--bs-border-color) 65%);
 }
@@ -140,6 +152,7 @@ body {
   text-align: center;
   font-weight: 600;
   color: var(--text-muted);
+  transition: color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .moodlist-card {
@@ -157,6 +170,19 @@ body {
   color: var(--text-primary);
   font-weight: 700;
   padding: 0.8rem 0.9rem;
+  transition: border-color var(--motion-duration-fast) var(--motion-smooth),
+    background-color var(--motion-duration-fast) var(--motion-smooth),
+    box-shadow var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.dropdown-button:hover {
+  border-color: color-mix(in srgb, var(--bs-primary) 34%, var(--bs-border-color) 66%);
+  background: color-mix(in srgb, var(--surface-subtle) 70%, var(--surface-raised) 30%);
+}
+
+.dropdown-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.16);
 }
 
 .entries-count {
@@ -170,8 +196,9 @@ body {
 }
 
 .arrow {
-  transition: transform 0.3s ease;
   color: var(--text-muted);
+  transition: transform var(--motion-duration-medium) var(--motion-smooth),
+    color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .arrow.open {
@@ -181,7 +208,11 @@ body {
 .dropdown-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.45s ease, opacity 0.35s ease, margin 0.3s ease;
+  transform: translateY(-6px);
+  transition: max-height var(--motion-duration-slow) var(--motion-smooth),
+    opacity var(--motion-duration-medium) var(--motion-smooth),
+    margin var(--motion-duration-medium) var(--motion-smooth),
+    transform var(--motion-duration-medium) var(--motion-smooth);
   opacity: 0;
 }
 
@@ -189,6 +220,7 @@ body {
   max-height: 3000px;
   opacity: 1;
   margin-top: 0.9rem;
+  transform: translateY(0);
 }
 
 .entry-card {
@@ -196,12 +228,16 @@ body {
   border-radius: 0.85rem;
   padding: 0.8rem;
   background: color-mix(in srgb, var(--surface-raised) 90%, transparent);
-  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  transition: border-color var(--motion-duration-fast) var(--motion-smooth),
+    background-color var(--motion-duration-fast) var(--motion-smooth),
+    transform var(--motion-duration-fast) var(--motion-smooth),
+    box-shadow var(--motion-duration-medium) var(--motion-smooth);
 }
 
 .entry-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--bs-primary) 34%, var(--bs-border-color) 66%);
+  box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.12);
 }
 
 .entry-card.expanded {
@@ -221,6 +257,7 @@ body {
 .mood-meta {
   font-size: 0.84rem;
   color: var(--text-muted);
+  transition: color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .expanded-entry {
@@ -304,7 +341,7 @@ body {
   overflow: hidden;
   position: relative;
   box-shadow: 0 18px 44px rgba(var(--brand-primary-rgb), 0.2);
-  animation: authCardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: authCardEnter 0.74s var(--motion-smooth);
 }
 
 .auth-card::before {
@@ -393,6 +430,19 @@ body {
     color-mix(in srgb, var(--bs-primary) 72%, #5b3f1f 28%)
   );
   box-shadow: 0 12px 26px rgba(var(--bs-primary-rgb), 0.35);
+  transition: transform var(--motion-duration-fast) var(--motion-smooth),
+    box-shadow var(--motion-duration-medium) var(--motion-smooth),
+    filter var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.auth-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(var(--bs-primary-rgb), 0.36);
+  filter: saturate(1.04);
+}
+
+.auth-primary:active {
+  transform: translateY(0);
 }
 
 .auth-secondary {
@@ -402,6 +452,13 @@ body {
   padding: 0.68rem 1rem;
   font-weight: 600;
   text-align: center;
+  transition: transform var(--motion-duration-fast) var(--motion-smooth),
+    border-color var(--motion-duration-fast) var(--motion-smooth),
+    background-color var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.auth-secondary:hover {
+  transform: translateY(-1px);
 }
 
 .auth-link {
@@ -410,6 +467,7 @@ body {
   font-size: 0.87rem;
   text-decoration: none;
   color: var(--text-muted);
+  transition: color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .auth-link:hover {
@@ -464,6 +522,7 @@ body {
 .layout-footer {
   background: var(--surface-raised);
   color: var(--text-muted);
+  transition: color var(--motion-duration-fast) var(--motion-smooth);
 }
 
 .innerlog-logo {
@@ -720,4 +779,122 @@ body[data-theme="dark"] .contact-link {
 
 body[data-theme="dark"] .contact-link:hover {
   color: #f0cf9f;
+}
+
+
+
+.layout-navbar {
+  transition: background-color var(--motion-duration-medium) var(--motion-smooth),
+    border-color var(--motion-duration-medium) var(--motion-smooth),
+    box-shadow var(--motion-duration-medium) var(--motion-smooth);
+}
+
+.layout-navbar .navbar-brand,
+.layout-navbar .nav-link,
+.layout-navbar .btn {
+  transition: color var(--motion-duration-fast) var(--motion-smooth),
+    transform var(--motion-duration-fast) var(--motion-smooth),
+    background-color var(--motion-duration-fast) var(--motion-smooth),
+    border-color var(--motion-duration-fast) var(--motion-smooth),
+    box-shadow var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.layout-navbar .navbar-brand:hover {
+  transform: translateY(-1px);
+}
+
+.layout-navbar .nav-link:hover {
+  color: color-mix(in srgb, var(--bs-primary) 85%, var(--text-primary) 15%);
+}
+
+.layout-navbar .nav-link.active {
+  position: relative;
+}
+
+.layout-navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.3rem;
+  height: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bs-primary) 70%, transparent);
+  opacity: 0.8;
+}
+
+main.flex-grow-1 {
+  animation: sectionEnter var(--motion-duration-slow) var(--motion-smooth);
+}
+
+.dashboard-appear {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: dashboardEnter var(--motion-duration-slow) var(--motion-smooth) forwards;
+  animation-delay: var(--appear-delay, 0s);
+}
+
+.dashboard-stack .dashboard-card,
+.dashboard-stack .dashboard-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: dashboardEnter var(--motion-duration-slow) var(--motion-smooth) forwards;
+}
+
+.dashboard-stack > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.dashboard-stack > *:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.dashboard-stack > *:nth-child(3) {
+  animation-delay: 0.22s;
+}
+
+.dashboard-stack > *:nth-child(4) {
+  animation-delay: 0.28s;
+}
+
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dashboardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .dropdown-content,
+  .dropdown-content.open,
+  .dashboard-appear,
+  .dashboard-stack .dashboard-card,
+  .dashboard-stack .dashboard-item {
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
