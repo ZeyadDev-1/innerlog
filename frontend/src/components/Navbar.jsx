@@ -8,7 +8,7 @@ export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
   const closeMenu = () => setExpanded(false);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light layout-navbar border-bottom">
+    <nav className="navbar navbar-expand-lg navbar-light layout-navbar border-bottom sticky-top">
       <div className="container">
         <Link className="navbar-brand d-flex align-items-center gap-2 fw-semibold" to="/" onClick={closeMenu}>
           <InnerLogLogo />
@@ -44,7 +44,7 @@ export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
             </li>
           </ul>
 
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center gap-2 navbar-actions">
             <button type="button" className="btn btn-sm btn-outline-primary" onClick={onThemeToggle}>
               {theme === "light" ? "🌙 Dark" : "☀️ Light"}
             </button>
@@ -59,7 +59,7 @@ export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
                 </NavLink>
               </>
             ) : (
-              <button type="button" className="btn btn-sm btn-danger" onClick={onLogout}>
+              <button type="button" className="btn btn-sm btn-outline-danger" onClick={onLogout}>
                 Logout
               </button>
             )}
