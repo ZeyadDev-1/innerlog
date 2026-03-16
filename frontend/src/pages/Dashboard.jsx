@@ -25,7 +25,7 @@ export default function Dashboard({
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          <button type="button" className="btn btn-sm btn-outline-primary" onClick={togglePrivacy}>
+          <button type="button" className="btn btn-sm btn-outline-primary px-3" onClick={togglePrivacy}>
             {privacyMode ? "Privacy: ON" : "Privacy: OFF"}
           </button>
         </div>

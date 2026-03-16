@@ -7,10 +7,12 @@
   --border-soft: #d7c0a6;
   --text-primary: #3e2f22;
   --text-muted: #7a6550;
+  --focus-ring: rgba(var(--bs-primary-rgb), 0.2);
 }
 
 body {
   transition: background-color 0.35s ease, color 0.35s ease;
+  text-rendering: optimizeLegibility;
 }
 
 body[data-theme="light"] {
@@ -39,7 +41,8 @@ body[data-theme="dark"] {
   --surface-subtle: #2d2342;
   --border-soft: #4b3f5f;
   --text-primary: #f1e8dc;
-  --text-muted: #baa996;
+  --text-muted: #c4b5a2;
+  --focus-ring: rgba(var(--bs-primary-rgb), 0.26);
 
   background: radial-gradient(circle at top, #2a2140 0%, #141021 64%);
   color: var(--bs-body-color);
@@ -85,4 +88,31 @@ body[data-theme="dark"] .auth-primary {
 
 body[data-theme="dark"] .content-page-subtext {
   color: #b2874d;
+}
+
+
+body[data-theme="dark"] .mood-date,
+body[data-theme="dark"] .mood-meta,
+body[data-theme="dark"] .contact-description,
+body[data-theme="dark"] .about-section-card p,
+body[data-theme="dark"] .value-card p,
+body[data-theme="dark"] .auth-subtitle {
+  color: #d1c2b3;
+}
+
+body[data-theme="dark"] .dashboard-card,
+body[data-theme="dark"] .entry-card,
+body[data-theme="dark"] .journal-full {
+  border-color: color-mix(in srgb, #6f5f8e 42%, var(--bs-border-color) 58%);
+}
+
+body[data-theme="dark"] .layout-navbar,
+body[data-theme="dark"] .layout-footer {
+  background: color-mix(in srgb, #221c32 92%, #141021 8%);
+}
+
+body[data-theme="dark"] .form-input:focus,
+body[data-theme="dark"] .auth-input:focus,
+body[data-theme="dark"] .dropdown-button:focus-visible {
+  box-shadow: 0 0 0 0.22rem var(--focus-ring);
 }
