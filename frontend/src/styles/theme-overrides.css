@@ -1,3 +1,4 @@
+/* Theme variables */
 :root {
   --brand-primary: #8c6a47;
   --brand-primary-rgb: 140, 106, 71;
@@ -10,6 +11,7 @@
   --focus-ring: rgba(var(--bs-primary-rgb), 0.2);
 }
 
+/* Theme application */
 body {
   transition: background-color 0.35s ease, color 0.35s ease;
   text-rendering: optimizeLegibility;
@@ -48,6 +50,7 @@ body[data-theme="dark"] {
   color: var(--bs-body-color);
 }
 
+/* Shared theme-aware component behavior */
 #root {
   min-height: 100vh;
 }
@@ -91,6 +94,7 @@ body[data-theme="dark"] .content-page-subtext {
 }
 
 
+/* Dark mode component refinements */
 body[data-theme="dark"] .mood-date,
 body[data-theme="dark"] .mood-meta,
 body[data-theme="dark"] .contact-description,
@@ -109,6 +113,11 @@ body[data-theme="dark"] .journal-full {
 body[data-theme="dark"] .layout-navbar,
 body[data-theme="dark"] .layout-footer {
   background: color-mix(in srgb, #221c32 92%, #141021 8%);
+}
+
+body[data-theme="dark"] .layout-navbar .navbar-login-btn {
+  color: color-mix(in srgb, #f0cf9f 88%, #fff4e3 12%);
+  border-color: color-mix(in srgb, #c79f6a 52%, var(--bs-border-color) 48%);
 }
 
 body[data-theme="dark"] .form-input:focus,
