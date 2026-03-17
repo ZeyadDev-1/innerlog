@@ -115,6 +115,11 @@ body[data-theme="dark"] .layout-footer {
   background: color-mix(in srgb, #221c32 92%, #141021 8%);
 }
 
+body[data-theme="dark"] .layout-navbar .navbar-login-btn {
+  color: color-mix(in srgb, #f0cf9f 88%, #fff4e3 12%);
+  border-color: color-mix(in srgb, #c79f6a 52%, var(--bs-border-color) 48%);
+}
+
 body[data-theme="dark"] .form-input:focus,
 body[data-theme="dark"] .auth-input:focus,
 body[data-theme="dark"] .dropdown-button:focus-visible {

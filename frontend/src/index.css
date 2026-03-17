@@ -578,6 +578,19 @@ body {
   filter: drop-shadow(0 4px 9px rgba(var(--bs-primary-rgb), 0.2));
 }
 
+.layout-navbar .navbar-login-btn {
+  color: color-mix(in srgb, var(--bs-primary) 84%, #3e2f22 16%);
+  border-color: color-mix(in srgb, var(--bs-primary) 46%, var(--bs-border-color) 54%);
+  background: color-mix(in srgb, var(--surface-raised) 88%, var(--surface-subtle) 12%);
+}
+
+.layout-navbar .navbar-login-btn:hover,
+.layout-navbar .navbar-login-btn:focus-visible {
+  color: var(--bs-primary);
+  border-color: color-mix(in srgb, var(--bs-primary) 66%, var(--bs-border-color) 34%);
+  background: color-mix(in srgb, var(--surface-subtle) 58%, var(--surface-raised) 42%);
+}
+
 .layout-footer {
   background: color-mix(in srgb, var(--surface-raised) 92%, transparent);
   color: var(--text-muted);

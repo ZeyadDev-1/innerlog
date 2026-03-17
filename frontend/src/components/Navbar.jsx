@@ -51,7 +51,7 @@ export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
 
             {!loggedIn ? (
               <>
-                <NavLink className="btn btn-sm btn-outline-secondary" to="/login" onClick={closeMenu}>
+                <NavLink className="btn btn-sm btn-outline-secondary navbar-login-btn" to="/login" onClick={closeMenu}>
                   Login
                 </NavLink>
                 <NavLink className="btn btn-sm btn-primary" to="/signup" onClick={closeMenu}>
