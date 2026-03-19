@@ -1,0 +1,111 @@
+/* Content pages: About */
+.about-page {
+  max-width: 1080px;
+}
+
+.about-hero,
+.about-section-card,
+.about-values {
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--surface-raised) 92%, #ffffff 8%),
+    color-mix(in srgb, var(--surface-subtle) 78%, var(--surface-raised) 22%)
+  );
+  color: var(--text-primary);
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 76%, transparent);
+}
+
+.about-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.about-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: color-mix(in srgb, var(--text-primary) 84%, var(--bs-primary) 16%);
+  font-weight: 700;
+}
+
+.about-brand-logo {
+  filter: drop-shadow(0 6px 12px rgba(var(--bs-primary-rgb), 0.25));
+}
+
+.about-hero::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -110px;
+  top: -120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--bs-primary-rgb), 0.23) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.about-title {
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.about-lead {
+  color: color-mix(in srgb, var(--text-primary) 88%, var(--text-muted) 12%);
+  line-height: 1.7;
+  max-width: 70ch;
+}
+
+.about-section-card p,
+.value-card p {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.about-note {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--bs-primary) 78%, var(--text-primary) 22%) !important;
+}
+
+.value-card {
+  height: 100%;
+  padding: 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 72%, transparent);
+  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.value-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.65rem;
+  margin-bottom: 0.7rem;
+  font-size: 1.2rem;
+  background: color-mix(in srgb, var(--bs-primary) 20%, transparent);
+}
+
+body[data-theme="dark"] .about-hero,
+body[data-theme="dark"] .about-section-card,
+body[data-theme="dark"] .about-values {
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, #2d2342 84%, #1c152c 16%),
+    color-mix(in srgb, #221c32 92%, #100c1c 8%)
+  );
+}
+
+body[data-theme="dark"] .innerlog-logo-line {
+  stroke: color-mix(in srgb, var(--surface-raised) 45%, #f0dfc8 55%);
+}
+
+body[data-theme="dark"] .about-note {
+  color: #e0bb88 !important;
+}
+
+body[data-theme="dark"] .value-card {
+  background: color-mix(in srgb, #2d2342 82%, #171125 18%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}

@@ -1,0 +1,77 @@
+/* Motion + interaction helpers */
+.dashboard-appear {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: dashboardEnter var(--motion-duration-slow) var(--motion-smooth) forwards;
+  animation-delay: var(--appear-delay, 0s);
+}
+
+.dashboard-stack .dashboard-card,
+.dashboard-stack .dashboard-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: dashboardEnter var(--motion-duration-slow) var(--motion-smooth) forwards;
+}
+
+.dashboard-stack > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.dashboard-stack > *:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.dashboard-stack > *:nth-child(3) {
+  animation-delay: 0.22s;
+}
+
+.dashboard-stack > *:nth-child(4) {
+  animation-delay: 0.28s;
+}
+
+
+
+.show-more-button,
+.dropdown-button,
+.entry-actions .btn,
+.auth-secondary {
+  min-height: 2.35rem;
+}
+
+.show-more-button {
+  transition: border-color var(--motion-duration-fast) var(--motion-smooth),
+    background-color var(--motion-duration-fast) var(--motion-smooth),
+    color var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.show-more-button:hover {
+  border-color: color-mix(in srgb, var(--bs-primary) 58%, transparent);
+  background: color-mix(in srgb, var(--surface-subtle) 45%, transparent);
+}
+
+.show-more-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.22rem rgba(var(--bs-primary-rgb), 0.18);
+}
+
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dashboardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
