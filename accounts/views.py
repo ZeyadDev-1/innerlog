@@ -7,6 +7,7 @@ from rest_framework import status
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
@@ -42,20 +43,24 @@ class RegisterWithEmailView(generics.CreateAPIView):
     serializer_class = RegisterWithEmailSerializer
 
     def perform_create(self, serializer):
-        user = serializer.save()
+        with transaction.atomic():
+            user = serializer.save()
 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = email_verification_token.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = email_verification_token.make_token(user)
+            verify_url = f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
 
-        verify_url = f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
-
-        send_mail(
-            subject="Verify your InnerLog account",
-            message=f"Click to verify your email: {verify_url}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+            send_mail(
+                subject="Verify your InnerLog account",
+                message=(
+                    "Welcome to InnerLog!\n\n"
+                    "Please click the link below to activate your account:\n"
+                    f"{verify_url}"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
 
 class VerifyEmailView(APIView):
     permission_classes = [permissions.AllowAny]
