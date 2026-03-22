@@ -1,23 +1,24 @@
-from rest_framework import generics, permissions
-from .serializers import RegisterSerializer
-from .models import User
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.utils.html import strip_tags
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import RegisterWithEmailSerializer
+from .models import User
+from .serializers import RegisterSerializer, RegisterWithEmailSerializer
 from .tokens import email_verification_token
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
+
 
 class ProfileView(APIView):
     def get(self, request):
@@ -26,7 +27,8 @@ class ProfileView(APIView):
             "username": user.username,
             "email": user.email
         })
-    
+
+
 class DeleteAccountView(APIView):
     def delete(self, request):
         user = request.user
@@ -35,8 +37,36 @@ class DeleteAccountView(APIView):
             {"detail": "Account and all associated data deleted."},
             status=status.HTTP_204_NO_CONTENT
         )
-    
+
+
 User = get_user_model()
+
+
+def build_verification_email(user, verify_url):
+    subject = "Activate your InnerLog account"
+    html_message = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
+        <p>Hi {user.username},</p>
+        <p>Welcome to <strong>InnerLog</strong>. Please confirm your email address to activate your account and start journaling.</p>
+        <p>
+          <a
+            href="{verify_url}"
+            style="display: inline-block; padding: 12px 20px; background: #6f4e37; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600;"
+          >
+            Verify email address
+          </a>
+        </p>
+        <p>If the button does not work, copy and paste this link into your browser:</p>
+        <p><a href="{verify_url}">{verify_url}</a></p>
+        <p>If you did not create an InnerLog account, you can safely ignore this email.</p>
+        <p>— The InnerLog team</p>
+      </body>
+    </html>
+    """
+    text_message = strip_tags(html_message)
+    return subject, text_message, html_message
+
 
 class RegisterWithEmailView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
@@ -49,18 +79,17 @@ class RegisterWithEmailView(generics.CreateAPIView):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = email_verification_token.make_token(user)
             verify_url = f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
+            subject, text_message, html_message = build_verification_email(user, verify_url)
 
-            send_mail(
-                subject="Verify your InnerLog account",
-                message=(
-                    "Welcome to InnerLog!\n\n"
-                    "Please click the link below to activate your account:\n"
-                    f"{verify_url}"
-                ),
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
+                to=[user.email],
             )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+
 
 class VerifyEmailView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -69,21 +98,63 @@ class VerifyEmailView(APIView):
         uid = request.data.get("uid")
         token = request.data.get("token")
         if not uid or not token:
-            return Response({"detail": "uid and token are required"}, status=400)
+            return Response(
+                {
+                    "code": "missing_token",
+                    "detail": "The verification link is incomplete. Please use the full link from your email.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
             user = User.objects.get(pk=user_id)
         except Exception:
-            return Response({"detail": "Invalid uid"}, status=400)
+            return Response(
+                {
+                    "code": "invalid_uid",
+                    "detail": "We could not validate this verification link. Please request a new one.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if email_verification_token.check_token(user, token):
+        if user.is_active:
+            return Response(
+                {
+                    "code": "already_verified",
+                    "detail": "This email address is already verified. You can sign in now.",
+                }
+            )
+
+        token_status = email_verification_token.get_token_status(user, token)
+        if token_status == "valid":
             user.is_active = True
             user.save(update_fields=["is_active"])
-            return Response({"detail": "Email verified successfully."})
+            return Response(
+                {
+                    "code": "verified",
+                    "detail": "Your email has been verified successfully. You can sign in now.",
+                }
+            )
 
-        return Response({"detail": "Invalid or expired token"}, status=400)
-    
+        if token_status == "expired":
+            return Response(
+                {
+                    "code": "expired_token",
+                    "detail": "This verification link has expired. Please sign up again to receive a new verification email.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {
+                "code": "invalid_token",
+                "detail": "This verification link is invalid. Please check the link in your email or sign up again.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
 

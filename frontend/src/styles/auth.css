@@ -142,6 +142,50 @@
 }
 
 
+.auth-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.auth-status-info {
+  background: rgba(var(--bs-info-rgb), 0.12);
+  color: color-mix(in srgb, var(--bs-info) 78%, #0f172a 22%);
+}
+
+.auth-status-success {
+  background: rgba(var(--bs-success-rgb), 0.12);
+  color: color-mix(in srgb, var(--bs-success) 82%, #052e16 18%);
+}
+
+.auth-status-warning {
+  background: rgba(var(--bs-warning-rgb), 0.18);
+  color: color-mix(in srgb, var(--bs-warning) 62%, #78350f 38%);
+}
+
+.auth-status-error {
+  background: rgba(var(--bs-danger-rgb), 0.12);
+  color: color-mix(in srgb, var(--bs-danger) 82%, #450a0a 18%);
+}
+
+.auth-helper-text {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+
 .app-shell .btn {
   border-radius: 0.75rem;
   font-weight: 600;
