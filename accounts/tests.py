@@ -1,3 +1,6 @@
+from datetime import timedelta
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import override_settings
@@ -75,7 +78,8 @@ class EmailVerificationFlowTests(APITestCase):
         email = mail.outbox[0]
         self.assertEqual(email.to, ["newuser@example.com"])
         self.assertEqual(email.from_email, "xxmirndaxx@gmail.com")
-        self.assertIn("Verify your InnerLog account", email.subject)
+        self.assertIn("Activate your InnerLog account", email.subject)
+        self.assertIn("Verify email address", email.alternatives[0][0])
         self.assertIn("/verify-email?uid=", email.body)
         self.assertIn("token=", email.body)
 
@@ -96,9 +100,50 @@ class EmailVerificationFlowTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], "verified")
 
         user.refresh_from_db()
         self.assertTrue(user.is_active)
+
+    def test_already_verified_user_gets_success_response(self):
+        user = self.user_model.objects.create_user(
+            username="active-user",
+            email="active@example.com",
+            password="strong-pass-123",
+            is_active=True,
+        )
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        response = self.client.post(
+            self.verify_url,
+            {"uid": uid, "token": "any-token"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], "already_verified")
+
+    @override_settings(PASSWORD_RESET_TIMEOUT=0)
+    def test_expired_token_returns_expired_code(self):
+        user = self.user_model.objects.create_user(
+            username="expired-user",
+            email="expired@example.com",
+            password="strong-pass-123",
+            is_active=False,
+        )
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = email_verification_token.make_token(user)
+
+        current_time = email_verification_token._now()
+        with patch("accounts.tokens.email_verification_token._now", return_value=current_time + timedelta(seconds=1)):
+            response = self.client.post(
+                self.verify_url,
+                {"uid": uid, "token": token},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "expired_token")
 
     def test_inactive_user_cannot_log_in_before_verification(self):
         self.user_model.objects.create_user(
