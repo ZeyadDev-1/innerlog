@@ -2,7 +2,13 @@ import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import InnerLogLogo from "./InnerLogLogo";
 
-export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
+export default function Navbar({
+  loggedIn,
+  onLogout,
+  theme,
+  onThemeToggle,
+  onOpenOnboarding,
+}) {
   const [expanded, setExpanded] = useState(false);
 
   const closeMenu = () => setExpanded(false);
@@ -59,9 +65,28 @@ export default function Navbar({ loggedIn, onLogout, theme, onThemeToggle }) {
                 </NavLink>
               </>
             ) : (
-              <button type="button" className="btn btn-sm btn-outline-danger" onClick={onLogout}>
-                Logout
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    closeMenu();
+                    onOpenOnboarding?.();
+                  }}
+                >
+                  Help / How to use InnerLog
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => {
+                    closeMenu();
+                    onLogout();
+                  }}
+                >
+                  Logout
+                </button>
+              </>
             )}
           </div>
         </div>

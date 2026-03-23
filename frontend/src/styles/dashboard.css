@@ -329,3 +329,109 @@
     margin-bottom: 1rem;
   }
 }
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(10px);
+  animation: onboardingBackdropIn var(--motion-duration-medium) var(--motion-smooth);
+}
+
+.onboarding-modal {
+  width: min(100%, 36rem);
+  margin: 0;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.onboarding-modal:hover {
+  transform: none;
+  border-color: color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.onboarding-title {
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.onboarding-counter {
+  flex-shrink: 0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bs-primary) 14%, transparent);
+}
+
+.onboarding-slide {
+  min-height: 7.5rem;
+  padding: 1rem;
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, var(--surface-subtle) 76%, var(--surface-raised) 24%);
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 76%, transparent);
+  animation: onboardingSlideIn var(--motion-duration-medium) var(--motion-smooth);
+}
+
+.onboarding-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.onboarding-progress {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.onboarding-progress-dot {
+  height: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bs-border-color) 78%, transparent);
+  transition: background-color var(--motion-duration-fast) var(--motion-smooth),
+    transform var(--motion-duration-fast) var(--motion-smooth);
+}
+
+.onboarding-progress-dot.active {
+  background: var(--bs-primary);
+  transform: scaleY(1.15);
+}
+
+@keyframes onboardingBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes onboardingSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 576px) {
+  .onboarding-slide {
+    min-height: auto;
+  }
+
+  .onboarding-progress {
+    gap: 0.3rem;
+  }
+}
