@@ -20,8 +20,7 @@ mood tracking, self-reflection, and emotional awareness.
 
 ## Email verification setup
 - The backend now sends verification emails through Gmail SMTP.
-- Set `EMAIL_APP_PASSWORD` in the environment before starting Django.
-- The configured sender account is `xxmirndaxx@gmail.com`.
+- Set `EMAIL_APP_PASSWORD`, `EMAIL_APP_PASSWORD`, `FRONTEND_URL` in the environment before starting Django.
 
 ## Ethics
 InnerLog is designed to support self-awareness, not replace
