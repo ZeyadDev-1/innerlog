@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .tokens import email_verification_token
+from .views import RESEND_VERIFICATION_RESPONSE
 
 
 class PasswordResetConfirmViewTests(APITestCase):
@@ -56,6 +57,7 @@ class EmailVerificationFlowTests(APITestCase):
         self.user_model = get_user_model()
         self.register_url = reverse("register")
         self.verify_url = reverse("verify-email")
+        self.resend_url = reverse("resend-verification-email")
         self.login_url = "/api/auth/login/"
 
     def test_registration_sends_verification_email_and_creates_inactive_user(self):
@@ -144,6 +146,54 @@ class EmailVerificationFlowTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["code"], "expired_token")
+
+    def test_resend_verification_email_sends_for_inactive_user(self):
+        self.user_model.objects.create_user(
+            username="inactive-resend",
+            email="inactive-resend@example.com",
+            password="strong-pass-123",
+            is_active=False,
+        )
+
+        response = self.client.post(
+            self.resend_url,
+            {"email": "inactive-resend@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, RESEND_VERIFICATION_RESPONSE)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["inactive-resend@example.com"])
+
+    def test_resend_verification_email_does_not_send_for_active_user(self):
+        self.user_model.objects.create_user(
+            username="active-resend",
+            email="active-resend@example.com",
+            password="strong-pass-123",
+            is_active=True,
+        )
+
+        response = self.client.post(
+            self.resend_url,
+            {"email": "active-resend@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, RESEND_VERIFICATION_RESPONSE)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_resend_verification_email_does_not_leak_unknown_email(self):
+        response = self.client.post(
+            self.resend_url,
+            {"email": "missing@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, RESEND_VERIFICATION_RESPONSE)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_inactive_user_cannot_log_in_before_verification(self):
         self.user_model.objects.create_user(

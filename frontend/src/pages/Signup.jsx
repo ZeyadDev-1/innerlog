@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import api from "../api/client";
 import InnerLogLogo from "../components/InnerLogLogo";
 
+const resendFallbackMessage =
+  "If an inactive account matches that email, we have sent a new verification email.";
+
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -11,6 +14,8 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
 
   const submit = async (e) => {
     e.preventDefault();
@@ -19,6 +24,7 @@ export default function Signup() {
 
     try {
       await api.post("auth/register/", { username, email, password });
+      setResendMessage("");
       setDone(true);
     } catch (err) {
       const msg =
@@ -27,6 +33,20 @@ export default function Signup() {
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resendVerificationEmail = async () => {
+    setResendMessage("");
+    setResending(true);
+
+    try {
+      const response = await api.post("auth/resend-verification-email/", { email });
+      setResendMessage(response?.data?.detail || resendFallbackMessage);
+    } catch {
+      setResendMessage(resendFallbackMessage);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -45,9 +65,21 @@ export default function Signup() {
               click the link to activate your account.
             </p>
 
-            <Link className="auth-secondary btn btn-outline-secondary" to="/login">
-              Back to login
-            </Link>
+            {resendMessage && <div className="auth-helper-text mb-3">{resendMessage}</div>}
+
+            <div className="auth-actions">
+              <button
+                type="button"
+                className="auth-secondary btn btn-outline-secondary"
+                onClick={resendVerificationEmail}
+                disabled={resending}
+              >
+                {resending ? "Sending..." : "Resend verification email"}
+              </button>
+              <Link className="auth-link" to="/login">
+                Back to login
+              </Link>
+            </div>
           </div>
         </div>
       </div>

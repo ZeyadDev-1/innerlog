@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,6 +40,13 @@ class DeleteAccountView(APIView):
 
 
 User = get_user_model()
+RESEND_VERIFICATION_RESPONSE = {
+    "detail": "If an inactive account matches that email, we have sent a new verification email."
+}
+
+
+class ResendVerificationEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
 
 def build_verification_email(user, verify_url):
@@ -68,6 +75,22 @@ def build_verification_email(user, verify_url):
     return subject, text_message, html_message
 
 
+def send_verification_email(user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = email_verification_token.make_token(user)
+    verify_url = f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
+    subject, text_message, html_message = build_verification_email(user, verify_url)
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+    email.attach_alternative(html_message, "text/html")
+    email.send(fail_silently=False)
+
+
 class RegisterWithEmailView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterWithEmailSerializer
@@ -75,20 +98,7 @@ class RegisterWithEmailView(generics.CreateAPIView):
     def perform_create(self, serializer):
         with transaction.atomic():
             user = serializer.save()
-
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = email_verification_token.make_token(user)
-            verify_url = f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
-            subject, text_message, html_message = build_verification_email(user, verify_url)
-
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=text_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[user.email],
-            )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=False)
+            send_verification_email(user)
 
 
 class VerifyEmailView(APIView):
@@ -153,6 +163,21 @@ class VerifyEmailView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class ResendVerificationEmailView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResendVerificationEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        user = User.objects.filter(email__iexact=email, is_active=False).first()
+        if user:
+            send_verification_email(user)
+
+        return Response(RESEND_VERIFICATION_RESPONSE)
 
 
 class PasswordResetConfirmView(APIView):
