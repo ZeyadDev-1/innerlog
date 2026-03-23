@@ -10,8 +10,10 @@ import Dashboard from "./pages/Dashboard";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import Layout from "./components/Layout";
+import OnboardingTutorial from "./components/OnboardingTutorial";
 
 const THEME_KEY = "innerlog_theme";
+const ONBOARDING_STATUS_KEY = "innerlog_onboarding_completed";
 
 function getInitialTheme() {
   const storedTheme = localStorage.getItem(THEME_KEY);
@@ -47,6 +49,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState("");
+  const [onboardingCompleted, setOnboardingCompleted] = useState(
+    localStorage.getItem(ONBOARDING_STATUS_KEY) === "true"
+  );
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
   function showSuccess(message) {
     setSuccessMessage(message);
@@ -80,14 +86,30 @@ export default function App() {
   }, [loggedIn]);
 
   useEffect(() => {
+    if (loggedIn && !onboardingCompleted) {
+      setOnboardingOpen(true);
+    }
+  }, [loggedIn, onboardingCompleted]);
+
+  useEffect(() => {
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     setLoggedIn(false);
+    setOnboardingOpen(false);
   };
+
+  const completeOnboarding = () => {
+    localStorage.setItem(ONBOARDING_STATUS_KEY, "true");
+    setOnboardingCompleted(true);
+    setOnboardingOpen(false);
+  };
+
+  const openOnboarding = () => setOnboardingOpen(true);
 
   const toggleTheme = () => {
     setTheme((previousTheme) =>
@@ -107,6 +129,7 @@ export default function App() {
       onLogout={handleLogout}
       theme={theme}
       onThemeToggle={toggleTheme}
+      onOpenOnboarding={openOnboarding}
     >
       <Routes>
         {/* Public */}
@@ -147,6 +170,12 @@ export default function App() {
           element={<Navigate to={loggedIn ? "/" : "/login"} replace />}
         />
       </Routes>
+      {onboardingOpen && (
+        <OnboardingTutorial
+          onSkip={completeOnboarding}
+          onFinish={completeOnboarding}
+        />
+      )}
     </Layout>
   );
 }
