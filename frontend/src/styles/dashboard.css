@@ -380,6 +380,23 @@
   animation: onboardingSlideIn var(--motion-duration-medium) var(--motion-smooth);
 }
 
+.onboarding-media {
+  margin: 0;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-raised) 90%, transparent);
+}
+
+.onboarding-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(40vh, 17rem);
+  object-fit: cover;
+  object-position: top center;
+}
+
 .onboarding-description {
   font-size: 1rem;
   line-height: 1.7;
@@ -427,8 +444,17 @@
 }
 
 @media (max-width: 576px) {
+  .onboarding-modal {
+    width: 100%;
+  }
+
   .onboarding-slide {
     min-height: auto;
+    padding: 0.85rem;
+  }
+
+  .onboarding-image {
+    max-height: 10.5rem;
   }
 
   .onboarding-progress {
