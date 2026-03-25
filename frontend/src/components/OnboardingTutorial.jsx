@@ -5,56 +5,63 @@ const SLIDES = [
     title: "Welcome",
     description:
       "Welcome to InnerLog. This quick tour shows how to track your moods and reflections with confidence.",
-    image: "/onboarding/welcome-dashboard.svg",
+    image: "/onboarding/welcome.png",
     imageAlt: "InnerLog dashboard showing mood form, recent entries, and charts.",
   },
   {
     title: "Add mood",
     description:
       "Use the mood slider to save how you're feeling today, from very low to very good.",
-    image: "/onboarding/add-mood.svg",
+    type: "video",
+    video: "/onboarding/mood-slider.mp4",
     imageAlt: "Mood form with the mood slider and save reflection button.",
   },
   {
     title: "Add emotions + journal",
     description:
       "Add a few emotions and a short journal note to capture what shaped your day.",
-    image: "/onboarding/add-emotions-journal.svg",
+    type: "video",
+    video: "/onboarding/add-emotion-journal.mp4",
     imageAlt: "Emotions and journal note fields in the daily check-in form.",
   },
   {
     title: "View entries",
     description:
       "Open Recent Entries to review your latest mood check-ins whenever you want.",
-    image: "/onboarding/view-entries.svg",
+    type: "video",
+    video: "/onboarding/view-entries.mp4",
     imageAlt: "Recent Entries panel on the dashboard.",
   },
   {
     title: "Edit / delete entries",
     description:
-      "Expand an entry to update details later or remove it if you no longer need it.",
-    image: "/onboarding/edit-delete.svg",
+      "Expand an entry to update details later or remove it if you add it by mistake.",
+    type: "video",
+    video: "/onboarding/delete-edit.mp4",
     imageAlt: "Expanded entry area showing edit and delete actions.",
   },
   {
     title: "Charts",
     description:
       "Use the charts to spot patterns, trends, and changes in your mood over time.",
-    image: "/onboarding/charts.svg",
+    type: "video",
+    video: "/onboarding/charts.mp4",
     imageAlt: "Mood trend, weekly average, and distribution charts.",
   },
   {
     title: "Privacy mode",
     description:
       "Turn on Privacy Mode to hide journal text while keeping the rest of your dashboard visible.",
-    image: "/onboarding/privacy-mode.svg",
+    type: "video",
+    video: "/onboarding/privacy-mood.mp4",
     imageAlt: "Privacy mode toggle in the dashboard header.",
   },
   {
     title: "Help access",
     description:
       "Need a refresher? Use the Help / How to use InnerLog button anytime to open this tour again.",
-    image: "/onboarding/help-access.svg",
+    type: "video",  
+    video: "/onboarding/help-guide.mp4",
     imageAlt: "Navigation bar with Help / How to use InnerLog button.",
   },
 ];
@@ -82,20 +89,42 @@ export default function OnboardingTutorial({ onSkip, onFinish }) {
             </h2>
           </div>
 
-          <span className="onboarding-counter" aria-label={`Slide ${currentSlide + 1} of ${SLIDES.length}`}>
+          <span
+            className="onboarding-counter"
+            aria-label={`Slide ${currentSlide + 1} of ${SLIDES.length}`}
+          >
             {currentSlide + 1}/{SLIDES.length}
           </span>
         </div>
 
         <div key={currentSlide} className="onboarding-slide">
           <figure className="onboarding-media mb-3">
-            <img
-              src={slide.image}
-              alt={slide.imageAlt}
-              className="onboarding-image"
-              loading="eager"
-            />
+            {slide.type === "video" ? (
+              <video
+                key={slide.video}
+                src={slide.video}
+                className="onboarding-image"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                controls={false}
+                disablePictureInPicture
+                controlsList="nodownload nofullscreen noremoteplayback"
+                aria-label={slide.imageAlt}
+                style={{ pointerEvents: "none" }}
+              />
+            ) : (
+              <img
+                src={slide.image}
+                alt={slide.imageAlt}
+                className="onboarding-image"
+                loading="eager"
+              />
+            )}
           </figure>
+
           <p id="onboarding-description" className="onboarding-description mb-0">
             {slide.description}
           </p>
