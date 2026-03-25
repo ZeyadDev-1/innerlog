@@ -79,7 +79,7 @@ class PasswordResetFlowTests(APITestCase):
         self.assertTrue(self.user.check_password("new-password-123"))
 
 
-    def test_rejects_password_already_used_by_another_user(self):
+    def test_allows_password_already_used_by_another_user(self):
         self.user_model.objects.create_user(
             username="other-user",
             email="other-user@example.com",
@@ -93,8 +93,10 @@ class PasswordResetFlowTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["code"], "password_in_use")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("shared-password-123"))
 
     def test_returns_400_for_invalid_token(self):
         response = self.client.post(
@@ -165,7 +167,7 @@ class EmailVerificationFlowTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("already exists", response.data["email"][0])
 
-    def test_registration_rejects_password_used_by_another_user(self):
+    def test_registration_allows_password_used_by_another_user(self):
         self.user_model.objects.create_user(
             username="existing-password-user",
             email="existing-password@example.com",
@@ -183,8 +185,10 @@ class EmailVerificationFlowTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("already in use", response.data["password"][0])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_user = self.user_model.objects.get(username="new-user")
+        self.assertTrue(new_user.check_password("shared-password-123"))
 
     def test_verification_activates_user(self):
         user = self.user_model.objects.create_user(
