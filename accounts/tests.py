@@ -10,11 +10,15 @@ from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .tokens import email_verification_token
+from .tokens import email_verification_token, password_reset_token
 from .views import RESEND_VERIFICATION_RESPONSE
 
 
-class PasswordResetConfirmViewTests(APITestCase):
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    FRONTEND_URL="http://localhost:5173",
+)
+class PasswordResetFlowTests(APITestCase):
     def setUp(self):
         self.user_model = get_user_model()
         self.user = self.user_model.objects.create_user(
@@ -23,12 +27,49 @@ class PasswordResetConfirmViewTests(APITestCase):
             password="old-password-123",
             is_active=True,
         )
+        self.request_url = reverse("password-reset")
+        self.validate_url = reverse("password-reset-validate")
         self.url = reverse("password-reset-confirm")
+        self.uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        self.token = password_reset_token.make_token(self.user)
 
-    def test_resets_password_with_username(self):
+    def test_sends_reset_email_for_existing_user(self):
+        response = self.client.post(
+            self.request_url,
+            {"email": "alice@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["detail"], "If an account matches that email, we have sent a password reset link.")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("/reset-password?uid=", mail.outbox[0].body)
+        self.assertIn("token=", mail.outbox[0].body)
+
+    def test_does_not_leak_unknown_email(self):
+        response = self.client.post(
+            self.request_url,
+            {"email": "missing@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["detail"], "If an account matches that email, we have sent a password reset link.")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_validates_link(self):
+        response = self.client.post(
+            self.validate_url,
+            {"uid": self.uid, "token": self.token},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_resets_password_with_uid_and_token(self):
         response = self.client.post(
             self.url,
-            {"username": "alice", "new_password": "new-password-123"},
+            {"uid": self.uid, "token": self.token, "new_password": "new-password-123"},
             format="json",
         )
 
@@ -37,15 +78,14 @@ class PasswordResetConfirmViewTests(APITestCase):
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("new-password-123"))
 
-    def test_returns_400_for_unknown_username(self):
+    def test_returns_400_for_invalid_token(self):
         response = self.client.post(
             self.url,
-            {"username": "unknown", "new_password": "new-password-123"},
+            {"uid": self.uid, "token": "bad-token", "new_password": "new-password-123"},
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["detail"], "Invalid username")
 
 
 @override_settings(
