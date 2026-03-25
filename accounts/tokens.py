@@ -4,7 +4,7 @@ from django.utils.crypto import constant_time_compare
 from django.utils.http import base36_to_int
 
 
-class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
+class TimeoutAwareTokenGenerator(PasswordResetTokenGenerator):
     def get_token_status(self, user, token):
         if not user or not token:
             return "invalid"
@@ -27,5 +27,5 @@ class EmailVerificationTokenGenerator(PasswordResetTokenGenerator):
 
         return "invalid"
 
-
-email_verification_token = EmailVerificationTokenGenerator()
+email_verification_token = TimeoutAwareTokenGenerator()
+password_reset_token = TimeoutAwareTokenGenerator()
