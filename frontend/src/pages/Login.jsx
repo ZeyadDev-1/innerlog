@@ -1,16 +1,27 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/client";
 import InnerLogLogo from "../components/InnerLogLogo";
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("message") === "password_changed") {
+      setSuccess("Password changed successfully.");
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("message");
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -47,6 +58,7 @@ export default function Login({ onLogin }) {
           <h2 className="auth-title">Welcome back</h2>
           <p className="auth-subtitle">Sign in to continue your InnerLog journey.</p>
 
+          {success && <div className="auth-success">{success}</div>}
           {error && <div className="auth-error">{error}</div>}
 
           <form onSubmit={submit} className="auth-form">

@@ -84,6 +84,11 @@ body[data-theme="dark"] .auth-error {
   color: #ffd3d7;
 }
 
+body[data-theme="dark"] .auth-success {
+  background: #1d4532;
+  color: #d8ffe8;
+}
+
 body[data-theme="dark"] .auth-primary {
   background: linear-gradient(130deg, #d0b089, #9f7950);
   color: #1a140f;
