@@ -15,7 +15,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User
-from .passwords import is_password_used_by_any_user
 from .serializers import (
     InnerLogTokenObtainPairSerializer,
     PasswordResetConfirmSerializer,
@@ -360,15 +359,6 @@ class PasswordResetConfirmView(APIView):
                 {
                     "code": "password_unchanged",
                     "detail": "Your new password must be different from your current password.",
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if is_password_used_by_any_user(new_password, exclude_user_id=user.id):
-            return Response(
-                {
-                    "code": "password_in_use",
-                    "detail": "This password is already in use. Please choose a different password.",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )

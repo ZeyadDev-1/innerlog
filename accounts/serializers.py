@@ -7,8 +7,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .passwords import is_password_used_by_any_user
-
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
@@ -51,11 +49,6 @@ class RegisterWithEmailSerializer(serializers.ModelSerializer):
             validate_password(value, user=candidate_user)
         except DjangoValidationError as exc:
             raise serializers.ValidationError(exc.messages)
-
-        if is_password_used_by_any_user(value):
-            raise serializers.ValidationError(
-                "This password is already in use. Please choose a different password."
-            )
 
         return value
 
