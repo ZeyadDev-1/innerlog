@@ -2,6 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/client";
 
+const getErrorMessage = (data, fallback) => {
+  if (!data) return fallback;
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.detail === "object" && typeof data.detail?.detail === "string") return data.detail.detail;
+
+  const firstField = Object.values(data).find((value) => Array.isArray(value) && value.length > 0);
+  if (firstField) return firstField[0];
+
+  return fallback;
+};
+
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -26,7 +37,7 @@ export default function ResetPassword() {
       try {
         await api.post("auth/password-reset/validate/", { uid, token });
       } catch (err) {
-        setError(err?.response?.data?.detail || "This reset link is invalid or has expired.");
+        setError(getErrorMessage(err?.response?.data, "This reset link is invalid or has expired."));
       } finally {
         setValidating(false);
       }
@@ -59,7 +70,7 @@ export default function ResetPassword() {
       });
       navigate("/login?message=password_changed", { replace: true });
     } catch (err) {
-      setError(err?.response?.data?.detail || "Password reset failed. Try again.");
+      setError(getErrorMessage(err?.response?.data, "Password reset failed. Try again."));
     } finally {
       setLoading(false);
     }
