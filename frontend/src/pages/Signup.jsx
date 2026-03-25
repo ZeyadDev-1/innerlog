@@ -6,6 +6,17 @@ import InnerLogLogo from "../components/InnerLogLogo";
 const resendFallbackMessage =
   "If an inactive account matches that email, we have sent a new verification email.";
 
+const getErrorMessage = (data, fallback) => {
+  if (!data) return fallback;
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.detail === "object" && typeof data.detail?.detail === "string") return data.detail.detail;
+
+  const firstField = Object.values(data).find((value) => Array.isArray(value) && value.length > 0);
+  if (firstField) return firstField[0];
+
+  return fallback;
+};
+
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,10 +38,12 @@ export default function Signup() {
       setResendMessage("");
       setDone(true);
     } catch (err) {
-      const msg =
-        err?.response?.data?.detail ||
-        "Signup failed. Please check your inputs and try again.";
-      setError(msg);
+      setError(
+        getErrorMessage(
+          err?.response?.data,
+          "Signup failed. Please check your inputs and try again."
+        )
+      );
     } finally {
       setLoading(false);
     }

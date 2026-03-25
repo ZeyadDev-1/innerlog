@@ -1,8 +1,10 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.mail import EmailMultiAlternatives
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
@@ -10,10 +12,19 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User
-from .serializers import RegisterSerializer, RegisterWithEmailSerializer
+from .passwords import is_password_used_by_any_user
+from .serializers import (
+    InnerLogTokenObtainPairSerializer,
+    PasswordResetConfirmSerializer,
+    RegisterSerializer,
+    RegisterWithEmailSerializer,
+)
 from .tokens import email_verification_token, password_reset_token
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -22,13 +33,15 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 
+class LoginView(TokenObtainPairView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = InnerLogTokenObtainPairSerializer
+
+
 class ProfileView(APIView):
     def get(self, request):
         user = request.user
-        return Response({
-            "username": user.username,
-            "email": user.email
-        })
+        return Response({"username": user.username, "email": user.email})
 
 
 class DeleteAccountView(APIView):
@@ -37,7 +50,7 @@ class DeleteAccountView(APIView):
         user.delete()
         return Response(
             {"detail": "Account and all associated data deleted."},
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_204_NO_CONTENT,
         )
 
 
@@ -142,14 +155,35 @@ def send_password_reset_email(user):
     email.send(fail_silently=False)
 
 
+def _server_error_response(code, detail, exc):
+    logger.exception("Authentication flow error: %s", code, exc_info=exc)
+    payload = {"code": code, "detail": detail}
+    if settings.DEBUG:
+        payload["debug"] = {"root_cause": str(exc)}
+    return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class RegisterWithEmailView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterWithEmailSerializer
 
-    def perform_create(self, serializer):
-        with transaction.atomic():
-            user = serializer.save()
-            send_verification_email(user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            with transaction.atomic():
+                user = serializer.save()
+                send_verification_email(user)
+        except Exception as exc:
+            return _server_error_response(
+                "registration_failed",
+                "We could not complete sign up right now. Please try again.",
+                exc,
+            )
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class VerifyEmailView(APIView):
@@ -170,7 +204,8 @@ class VerifyEmailView(APIView):
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
             user = User.objects.get(pk=user_id)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Invalid verification uid", extra={"uid": uid, "error": str(exc)})
             return Response(
                 {
                     "code": "invalid_uid",
@@ -207,6 +242,7 @@ class VerifyEmailView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        logger.warning("Invalid verification token", extra={"user_id": user.id})
         return Response(
             {
                 "code": "invalid_token",
@@ -226,7 +262,14 @@ class ResendVerificationEmailView(APIView):
         email = serializer.validated_data["email"]
         user = User.objects.filter(email__iexact=email, is_active=False).first()
         if user:
-            send_verification_email(user)
+            try:
+                send_verification_email(user)
+            except Exception as exc:
+                return _server_error_response(
+                    "verification_email_send_failed",
+                    "We could not send a verification email right now. Please try again.",
+                    exc,
+                )
 
         return Response(RESEND_VERIFICATION_RESPONSE)
 
@@ -241,7 +284,14 @@ class PasswordResetRequestView(APIView):
         email = serializer.validated_data["email"]
         user = User.objects.filter(email__iexact=email).first()
         if user:
-            send_password_reset_email(user)
+            try:
+                send_password_reset_email(user)
+            except Exception as exc:
+                return _server_error_response(
+                    "password_reset_email_send_failed",
+                    "We could not process your request right now. Please try again.",
+                    exc,
+                )
 
         return Response(PASSWORD_RESET_REQUEST_RESPONSE)
 
@@ -261,7 +311,8 @@ class PasswordResetValidateView(APIView):
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
             user = User.objects.get(pk=user_id)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Invalid password reset uid", extra={"uid": uid, "error": str(exc)})
             return Response(
                 {"code": "invalid_link", "detail": "This reset link is invalid or has expired."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -281,27 +332,60 @@ class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        uid = request.data.get("uid")
-        token = request.data.get("token")
-        new_password = request.data.get("new_password")
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not uid or not token or not new_password:
-            return Response({"detail": "uid, token and new_password are required"}, status=400)
+        uid = serializer.validated_data["uid"]
+        token = serializer.validated_data["token"]
+        new_password = serializer.validated_data["new_password"]
 
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
             user = User.objects.get(pk=user_id)
-        except Exception:
-            return Response({"detail": "This reset link is invalid or has expired."}, status=400)
+        except Exception as exc:
+            logger.warning("Invalid password reset confirm uid", extra={"uid": uid, "error": str(exc)})
+            return Response(
+                {"code": "invalid_link", "detail": "This reset link is invalid or has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if password_reset_token.get_token_status(user, token) != "valid":
-            return Response({"detail": "This reset link is invalid or has expired."}, status=400)
+            return Response(
+                {"code": "invalid_link", "detail": "This reset link is invalid or has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user.check_password(new_password):
+            return Response(
+                {
+                    "code": "password_unchanged",
+                    "detail": "Your new password must be different from your current password.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if is_password_used_by_any_user(new_password, exclude_user_id=user.id):
+            return Response(
+                {
+                    "code": "password_in_use",
+                    "detail": "This password is already in use. Please choose a different password.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             validate_password(new_password, user=user)
         except ValidationError as exc:
-            return Response({"detail": " ".join(exc.messages)}, status=400)
+            return Response({"code": "weak_password", "detail": " ".join(exc.messages)}, status=400)
 
-        user.set_password(new_password)
-        user.save()
+        try:
+            user.set_password(new_password)
+            user.save(update_fields=["password"])
+        except Exception as exc:
+            return _server_error_response(
+                "password_reset_failed",
+                "We could not reset your password right now. Please try again.",
+                exc,
+            )
+
         return Response({"detail": "Password has been reset successfully."})

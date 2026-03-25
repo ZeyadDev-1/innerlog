@@ -3,6 +3,17 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/client";
 import InnerLogLogo from "../components/InnerLogLogo";
 
+const getErrorMessage = (data, fallback) => {
+  if (!data) return fallback;
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.detail === "object" && typeof data.detail?.detail === "string") return data.detail.detail;
+
+  const firstField = Object.values(data).find((value) => Array.isArray(value) && value.length > 0);
+  if (firstField) return firstField[0];
+
+  return fallback;
+};
+
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,10 +49,12 @@ export default function Login({ onLogin }) {
       onLogin?.();
       navigate("/", { replace: true });
     } catch (err) {
-      const msg =
-        err?.response?.data?.detail ||
-        "Login failed. Check your username and password.";
-      setError(msg);
+      setError(
+        getErrorMessage(
+          err?.response?.data,
+          "Login failed. Check your username and password."
+        )
+      );
     } finally {
       setLoading(false);
     }

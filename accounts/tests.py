@@ -78,6 +78,24 @@ class PasswordResetFlowTests(APITestCase):
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("new-password-123"))
 
+
+    def test_rejects_password_already_used_by_another_user(self):
+        self.user_model.objects.create_user(
+            username="other-user",
+            email="other-user@example.com",
+            password="shared-password-123",
+            is_active=True,
+        )
+
+        response = self.client.post(
+            self.url,
+            {"uid": self.uid, "token": self.token, "new_password": "shared-password-123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "password_in_use")
+
     def test_returns_400_for_invalid_token(self):
         response = self.client.post(
             self.url,
@@ -124,6 +142,49 @@ class EmailVerificationFlowTests(APITestCase):
         self.assertIn("Verify email address", email.alternatives[0][0])
         self.assertIn("/verify-email?uid=", email.body)
         self.assertIn("token=", email.body)
+
+
+    def test_registration_rejects_case_insensitive_duplicate_email(self):
+        self.user_model.objects.create_user(
+            username="existing-user",
+            email="existing@example.com",
+            password="strong-pass-123",
+            is_active=True,
+        )
+
+        response = self.client.post(
+            self.register_url,
+            {
+                "username": "new-user",
+                "email": "Existing@Example.com",
+                "password": "another-strong-pass-123",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("already exists", response.data["email"][0])
+
+    def test_registration_rejects_password_used_by_another_user(self):
+        self.user_model.objects.create_user(
+            username="existing-password-user",
+            email="existing-password@example.com",
+            password="shared-password-123",
+            is_active=True,
+        )
+
+        response = self.client.post(
+            self.register_url,
+            {
+                "username": "new-user",
+                "email": "new-user@example.com",
+                "password": "shared-password-123",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("already in use", response.data["password"][0])
 
     def test_verification_activates_user(self):
         user = self.user_model.objects.create_user(
@@ -234,6 +295,24 @@ class EmailVerificationFlowTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, RESEND_VERIFICATION_RESPONSE)
         self.assertEqual(len(mail.outbox), 0)
+
+
+    def test_login_inactive_user_returns_email_not_verified_code(self):
+        self.user_model.objects.create_user(
+            username="inactive-login-2",
+            email="inactive-login-2@example.com",
+            password="strong-pass-123",
+            is_active=False,
+        )
+
+        response = self.client.post(
+            self.login_url,
+            {"username": "inactive-login-2", "password": "strong-pass-123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["detail"]["code"], "email_not_verified")
 
     def test_inactive_user_cannot_log_in_before_verification(self):
         self.user_model.objects.create_user(
