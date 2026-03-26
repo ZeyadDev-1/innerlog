@@ -140,9 +140,19 @@ export default function OnboardingTutorial({ onSkip, onFinish }) {
         </div>
 
         <div className="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
-          <button type="button" className="btn btn-outline-secondary" onClick={onSkip}>
-            Skip
-          </button>
+          <div className="d-flex gap-2">
+            <button type="button" className="btn btn-outline-secondary" onClick={onSkip}>
+              Skip
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setCurrentSlide((previous) => Math.max(previous - 1, 0))}
+              disabled={currentSlide === 0}
+            >
+              Previous
+            </button>
+          </div>
 
           <div className="d-flex gap-2 justify-content-end">
             {!isLastSlide ? (
