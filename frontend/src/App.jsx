@@ -15,6 +15,11 @@ import OnboardingTutorial from "./components/OnboardingTutorial";
 
 const THEME_KEY = "innerlog_theme";
 const ONBOARDING_STATUS_KEY = "innerlog_onboarding_completed";
+const ONBOARDING_STATUS_PREFIX = "innerlog_onboarding_completed:";
+
+function onboardingStatusKeyForUser(username) {
+  return `${ONBOARDING_STATUS_PREFIX}${username || "anonymous"}`;
+}
 
 function getInitialTheme() {
   const storedTheme = localStorage.getItem(THEME_KEY);
@@ -50,8 +55,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState("");
-  const [onboardingCompleted, setOnboardingCompleted] = useState(
-    localStorage.getItem(ONBOARDING_STATUS_KEY) === "true"
+  const [onboardingCompleted, setOnboardingCompleted] = useState(true);
+  const [onboardingReady, setOnboardingReady] = useState(false);
+  const [onboardingStorageKey, setOnboardingStorageKey] = useState(
+    ONBOARDING_STATUS_KEY
   );
   const [onboardingOpen, setOnboardingOpen] = useState(false);
 
@@ -87,10 +94,42 @@ export default function App() {
   }, [loggedIn]);
 
   useEffect(() => {
-    if (loggedIn && !onboardingCompleted) {
+    if (loggedIn && onboardingReady && !onboardingCompleted) {
       setOnboardingOpen(true);
     }
-  }, [loggedIn, onboardingCompleted]);
+  }, [loggedIn, onboardingCompleted, onboardingReady]);
+
+  useEffect(() => {
+    async function loadOnboardingState() {
+      if (!loggedIn) {
+        setOnboardingReady(false);
+        return;
+      }
+
+      try {
+        const profileRes = await api.get("auth/me/");
+        const profile = profileRes.data || {};
+        const scopedStorageKey = onboardingStatusKeyForUser(profile.username);
+        setOnboardingStorageKey(scopedStorageKey);
+
+        const localValue = localStorage.getItem(scopedStorageKey) === "true";
+        const hasBackendValue = typeof profile.onboarding_completed === "boolean";
+        const completed = hasBackendValue ? profile.onboarding_completed : localValue;
+
+        setOnboardingCompleted(completed);
+        setOnboardingReady(true);
+        localStorage.setItem(scopedStorageKey, String(completed));
+      } catch (err) {
+        console.error("Failed to load onboarding state:", err);
+        const legacyValue = localStorage.getItem(ONBOARDING_STATUS_KEY) === "true";
+        setOnboardingStorageKey(ONBOARDING_STATUS_KEY);
+        setOnboardingCompleted(legacyValue);
+        setOnboardingReady(true);
+      }
+    }
+
+    loadOnboardingState();
+  }, [loggedIn]);
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
@@ -101,13 +140,21 @@ export default function App() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     setLoggedIn(false);
+    setOnboardingReady(false);
     setOnboardingOpen(false);
   };
 
-  const completeOnboarding = () => {
-    localStorage.setItem(ONBOARDING_STATUS_KEY, "true");
+  const completeOnboarding = async () => {
     setOnboardingCompleted(true);
     setOnboardingOpen(false);
+    localStorage.setItem(onboardingStorageKey, "true");
+    localStorage.setItem(ONBOARDING_STATUS_KEY, "true");
+
+    try {
+      await api.patch("auth/me/", { onboarding_completed: true });
+    } catch (err) {
+      console.error("Failed to persist onboarding completion:", err);
+    }
   };
 
   const openOnboarding = () => setOnboardingOpen(true);

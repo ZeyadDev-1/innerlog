@@ -40,7 +40,33 @@ class LoginView(TokenObtainPairView):
 class ProfileView(APIView):
     def get(self, request):
         user = request.user
-        return Response({"username": user.username, "email": user.email})
+        return Response(
+            {
+                "username": user.username,
+                "email": user.email,
+                "onboarding_completed": user.onboarding_completed,
+            }
+        )
+
+    def patch(self, request):
+        onboarding_completed = request.data.get("onboarding_completed")
+        if not isinstance(onboarding_completed, bool):
+            return Response(
+                {"detail": "onboarding_completed must be a boolean."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        user.onboarding_completed = onboarding_completed
+        user.save(update_fields=["onboarding_completed"])
+
+        return Response(
+            {
+                "username": user.username,
+                "email": user.email,
+                "onboarding_completed": user.onboarding_completed,
+            }
+        )
 
 
 class DeleteAccountView(APIView):
