@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import api from "../api/client";
 
-export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
+export default function MoodList({ moods, onRefresh, onSuccess, privacyMode }) {
   const [open, setOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const [expandedId, setExpandedId] = useState(null);
@@ -14,11 +14,8 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
 
   const moodEmojis = { 1: "😞", 2: "😕", 3: "😐", 4: "🙂", 5: "😁" };
 
-  const sortedMoods = useMemo(() => {
-    return [...moods].sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
-  }, [moods]);
+  // Backend already returns moods in descending created_at order.
+  const sortedMoods = useMemo(() => moods, [moods]);
 
   const shownMoods = sortedMoods.slice(0, visibleCount);
   const hasMore = visibleCount < sortedMoods.length;
@@ -58,7 +55,7 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
         journal_text: editJournal,
       });
       setEditingId(null);
-      onDelete();
+      onRefresh();
       onSuccess("Entry updated successfully.");
     } catch (err) {
       console.error("Failed to update mood:", err);
@@ -75,7 +72,7 @@ export default function MoodList({ moods, onDelete, onSuccess, privacyMode }) {
       await api.delete(`journal/moods/${id}/`);
       setExpandedId(null);
       setEditingId(null);
-      onDelete();
+      onRefresh();
       onSuccess("Mood deleted successfully.");
     } catch (err) {
       console.error("Failed to delete mood:", err);
