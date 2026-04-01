@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import api from "./api/client";
 
@@ -67,31 +67,48 @@ export default function App() {
     setTimeout(() => setSuccessMessage(""), 2000);
   }
 
-  async function loadAllData() {
+  const loadMoods = useCallback(async () => {
+    const start = performance.now();
+    const moodsRes = await api.get("journal/moods/");
+    setMoods(moodsRes.data);
+    if (import.meta.env.DEV) {
+      console.debug(`[perf] journal/moods loaded in ${(performance.now() - start).toFixed(1)}ms`);
+    }
+  }, []);
+
+  const loadInsights = useCallback(async () => {
+    const start = performance.now();
+    const [trendRes, weeklyRes, distributionRes] = await Promise.all([
+      api.get("insights/trend/"),
+      api.get("insights/weekly-average/"),
+      api.get("insights/distribution/"),
+    ]);
+    setTrend(trendRes.data);
+    setWeekly(weeklyRes.data);
+    setDistribution(distributionRes.data);
+    if (import.meta.env.DEV) {
+      console.debug(`[perf] insights bundle loaded in ${(performance.now() - start).toFixed(1)}ms`);
+    }
+  }, []);
+
+  const loadAllData = useCallback(async () => {
+    const start = performance.now();
     try {
       setLoading(true);
-
-      const [trendRes, weeklyRes, distributionRes, moodsRes] = await Promise.all([
-        api.get("insights/trend/"),
-        api.get("insights/weekly-average/"),
-        api.get("insights/distribution/"),
-        api.get("journal/moods/"),
-      ]);
-
-      setTrend(trendRes.data);
-      setWeekly(weeklyRes.data);
-      setDistribution(distributionRes.data);
-      setMoods(moodsRes.data);
+      await Promise.all([loadInsights(), loadMoods()]);
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
     } finally {
+      if (import.meta.env.DEV) {
+        console.debug(`[perf] dashboard loadAllData took ${(performance.now() - start).toFixed(1)}ms`);
+      }
       setLoading(false);
     }
-  }
+  }, [loadInsights, loadMoods]);
 
   useEffect(() => {
     if (loggedIn) loadAllData();
-  }, [loggedIn]);
+  }, [loggedIn, loadAllData]);
 
   useEffect(() => {
     if (loggedIn && onboardingReady && !onboardingCompleted) {
@@ -207,6 +224,7 @@ export default function App() {
                 weekly={weekly}
                 distribution={distribution}
                 loadAllData={loadAllData}
+                loadMoods={loadMoods}
                 showSuccess={showSuccess}
               />
             </PrivateRoute>

@@ -4,6 +4,8 @@ const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
 });
 
+let refreshPromise = null;
+
 // Attach access token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
@@ -30,12 +32,18 @@ api.interceptors.response.use(
       }
 
       try {
-        const res = await axios.post(
-          "http://127.0.0.1:8000/api/auth/token/refresh/",
-          { refresh: refreshToken }
-        );
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post("http://127.0.0.1:8000/api/auth/token/refresh/", {
+              refresh: refreshToken,
+            })
+            .then((res) => res.data.access)
+            .finally(() => {
+              refreshPromise = null;
+            });
+        }
 
-        const newAccess = res.data.access;
+        const newAccess = await refreshPromise;
 
         localStorage.setItem("access_token", newAccess);
 

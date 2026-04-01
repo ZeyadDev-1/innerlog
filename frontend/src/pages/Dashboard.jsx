@@ -14,6 +14,7 @@ export default function Dashboard({
   weekly,
   distribution,
   loadAllData,
+  loadMoods,
   showSuccess,
 }) {
   return (
@@ -35,7 +36,7 @@ export default function Dashboard({
 
       <div className="row g-4 align-items-start dashboard-grid">
         <div className="col-12 col-lg-4 dashboard-appear" style={{ "--appear-delay": "0.08s" }}>
-          <MoodForm onAdd={loadAllData} onSuccess={showSuccess} />
+          <MoodForm onAdd={loadMoods} onSuccess={showSuccess} />
         </div>
 
         <div className="col-12 col-lg-8 dashboard-appear" style={{ "--appear-delay": "0.16s" }}>
@@ -45,7 +46,7 @@ export default function Dashboard({
             <div className="d-grid gap-4 dashboard-stack">
               <MoodList
                 moods={moods}
-                onDelete={loadAllData}
+                onRefresh={loadMoods}
                 onSuccess={showSuccess}
                 privacyMode={privacyMode}
               />
