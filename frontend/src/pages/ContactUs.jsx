@@ -1,7 +1,7 @@
 const contactMethods = [
   {
     name: "WhatsApp",
-    href: "https://wa.me/905365037943",
+    href: import.meta.env.CONTACT_WHATSAPP,
     label: "Chat on WhatsApp",
     description:
       "For quick questions, onboarding support, or thoughtful feedback, send us a message and we will get back to you as soon as possible.",
@@ -13,7 +13,7 @@ const contactMethods = [
   },
   {
     name: "LinkedIn",
-    href: "https://www.linkedin.com/in/zeyad-abouelkassem-b28979369/",
+    href: import.meta.env.CONTACT_LINKEDIN,
     label: "Connect on LinkedIn",
     description:
       "If you would like to discuss partnerships, product ideas, or professional collaboration, you are welcome to connect with us on LinkedIn.",
@@ -23,7 +23,7 @@ const contactMethods = [
       </svg>
     ),
   },
-];
+].filter((method) => typeof method.href === "string" && method.href.trim() !== "");
 
 export default function ContactUs() {
   return (
@@ -39,30 +39,38 @@ export default function ContactUs() {
         </div>
       </div>
 
-      <div className="row g-3 g-lg-4">
-        {contactMethods.map((method) => (
-          <div className="col-12 col-md-6 d-flex" key={method.name}>
-            <article className="contact-card card border-0 shadow-sm w-100">
-              <div className="card-body p-4 d-flex flex-column">
-                <div className="contact-icon" aria-hidden="true">
-                  {method.icon}
+      {contactMethods.length > 0 ? (
+        <div className="row g-3 g-lg-4">
+          {contactMethods.map((method) => (
+            <div className="col-12 col-md-6 d-flex" key={method.name}>
+              <article className="contact-card card border-0 shadow-sm w-100">
+                <div className="card-body p-4 d-flex flex-column">
+                  <div className="contact-icon" aria-hidden="true">
+                    {method.icon}
+                  </div>
+                  <h2 className="h5 mb-2">{method.name}</h2>
+                  <p className="contact-description mb-4">{method.description}</p>
+                  <a
+                    className="contact-link mt-auto"
+                    href={method.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {method.label}
+                    <span aria-hidden="true">↗</span>
+                  </a>
                 </div>
-                <h2 className="h5 mb-2">{method.name}</h2>
-                <p className="contact-description mb-4">{method.description}</p>
-                <a
-                  className="contact-link mt-auto"
-                  href={method.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {method.label}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              </div>
-            </article>
+              </article>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            <p className="mb-0 text-muted">No direct contact channels are configured for this deployment.</p>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 }
