@@ -5,20 +5,24 @@ InnerLog is an ethical mental health companion focused on mood tracking, self-re
 ⚠️ This application does **NOT** provide medical diagnosis or treatment.
 
 ## Features
-- Secure authentication
-- Mood journaling
-- Progress visualization
-- Resource recommendations
-- Privacy-first design
+
+* Secure authentication
+* Mood journaling
+* Progress visualization
+* Resource recommendations
+* Privacy-first design
 
 ## Tech Stack
-- Django + Django REST Framework
-- SQLite
-- Chart.js
-- React
+
+* Django + Django REST Framework
+* SQLite
+* Chart.js
+* React
 
 ## Environment Setup
+
 1. Copy the environment template:
+
    ```bash
    cp .env.example .env
    ```
@@ -27,19 +31,44 @@ InnerLog is an ethical mental health companion focused on mood tracking, self-re
 > `.env.example` is only a template for reference and is **not** read directly by the application. The application reads runtime values from `.env`.
 
 ### Required variables
-- `EMAIL_APP_USER`
-- `EMAIL_APP_PASSWORD`
-- `FRONTEND_URL`
+
+* `EMAIL_APP_USER`
+* `EMAIL_APP_PASSWORD`
+* `FRONTEND_URL`
+* `SECRET_KEY`
+
+### 🔐 SECRET_KEY (Important)
+
+`SECRET_KEY` is used by Django for cryptographic signing, session security, and authentication-related features.
+
+Each developer must generate their own unique `SECRET_KEY`. Do **not** reuse or share keys.
+
+You can generate a secure key using:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Then paste it into your `.env` file:
+
+```env
+SECRET_KEY=your-generated-secret-key
+```
+
+⚠️ Never commit your `.env` file or expose your `SECRET_KEY` publicly.
 
 ### Optional Contact Us variables
-- `CONTACT_LINKEDIN`
-- `CONTACT_WHATSAPP`
+
+* `CONTACT_LINKEDIN`
+* `CONTACT_WHATSAPP`
 
 These contact variables are optional and only needed if you want to enable Contact Us links in the UI. If they are not provided, Contact Us options are hidden/disabled gracefully.
 
 ## Email verification setup
-- The backend sends verification emails through Gmail SMTP.
-- Ensure required email variables are set in `.env` before starting Django.
+
+* The backend sends verification emails through Gmail SMTP.
+* Ensure required email variables are set in `.env` before starting Django.
 
 ## Ethics
+
 InnerLog is designed to support self-awareness, not replace professional mental health care.
